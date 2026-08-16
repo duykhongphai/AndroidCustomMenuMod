@@ -108,3 +108,12 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM*, void*) {
     );
     return JNI_VERSION_1_6;
 }
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_nguyen_onyxmenu_demo_nativebridge_NativeDemoRuntime_nativeInitializeHack(
+        JNIEnv* env,
+        jclass,
+        jlong il2cppBase
+) {
+    onyx::menufreefire::features::initializeHack((uintptr_t)il2cppBase);
+}
