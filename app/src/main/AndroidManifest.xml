@@ -7,13 +7,13 @@
         android:label="@string/app_name"
         android:roundIcon="@drawable/ic_launcher"
         android:supportsRtl="true"
-        android:theme="@style/Theme.NebulaOverlay"
+        android:theme="@style/Theme.OnyxOverlay"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules">
 
         <meta-data
-            android:name="com.nguyen.nebulamenu.MENU_PROVIDER"
-            android:value="com.nguyen.androidcustommenumod.profile.DemoMenuProvider" />
+            android:name="com.nguyen.onyxmenu.MENU_PROVIDER"
+            android:value="com.nguyen.onyxmenu.demo.profile.DemoMenuProvider" />
 
         <activity
             android:name=".MainActivity"

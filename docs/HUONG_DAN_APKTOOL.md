@@ -27,11 +27,11 @@ $repo = "C:\Users\nguye\Documents\GitHub\AndroidCustomMenuMod"
 $toolkit = "D:\APK_Toolkit_by_0xd00d"
 $apk = "C:\duong-dan\toi\app-release.apk"
 
-$decoded = "$toolkit\1 - Decompiled\MyApp-Nebula"
-$payloadWork = "$toolkit\3 - Extracted\NebulaPayload"
-$unsigned = "$toolkit\2 - Compiled\MyApp-Nebula-unsigned.apk"
-$aligned = "$toolkit\2 - Compiled\MyApp-Nebula-aligned.apk"
-$signed = "$toolkit\2 - Compiled\MyApp-Nebula-signed.apk"
+$decoded = "$toolkit\1 - Decompiled\MyApp-Onyx"
+$payloadWork = "$toolkit\3 - Extracted\OnyxPayload"
+$unsigned = "$toolkit\2 - Compiled\MyApp-Onyx-unsigned.apk"
+$aligned = "$toolkit\2 - Compiled\MyApp-Onyx-aligned.apk"
+$signed = "$toolkit\2 - Compiled\MyApp-Onyx-signed.apk"
 ```
 
 Các đường dẫn output nên chưa tồn tại để tránh ghi đè nhầm dữ liệu.
@@ -44,13 +44,13 @@ Set-Location $repo
 $env:JAVA_HOME = "C:\duong-dan\toi\jdk-21"
 $env:Path = "$env:JAVA_HOME\bin;$env:Path"
 
-.\gradlew.bat :menu-core:assembleRelease :apktool-payload:assembleRelease
+.\gradlew.bat :onyx-core:assembleRelease :apktool-payload:assembleRelease
 ```
 
 Kết quả:
 
 ```text
-menu-core\build\outputs\aar\menu-core-release.aar
+onyx-core\build\outputs\aar\onyx-core-release.aar
 apktool-payload\build\outputs\aar\apktool-payload-release.aar
 ```
 
@@ -58,7 +58,7 @@ apktool-payload\build\outputs\aar\apktool-payload-release.aar
 
 ```powershell
 $sevenZip = "$toolkit\6 - Resources\7z.exe"
-$coreAar = "$repo\menu-core\build\outputs\aar\menu-core-release.aar"
+$coreAar = "$repo\onyx-core\build\outputs\aar\onyx-core-release.aar"
 $payloadAar = "$repo\apktool-payload\build\outputs\aar\apktool-payload-release.aar"
 
 New-Item -ItemType Directory -Path "$payloadWork\core" -Force | Out-Null
@@ -115,14 +115,14 @@ Get-ChildItem $smaliOut -Filter "*.smali" -Recurse | Measure-Object
 Phải thấy hai package:
 
 ```text
-$smaliOut\com\nguyen\nebulamenu
-$smaliOut\com\nguyen\nebulapayload
+$smaliOut\com\nguyen\onyxmenu
+$smaliOut\com\nguyen\onyxpayload
 ```
 
 Payload chuẩn không được tham chiếu `R` của host:
 
 ```powershell
-rg "Lcom/nguyen/nebulamenu/R;|Lcom/nguyen/nebulapayload/R;" $smaliOut
+rg "Lcom/nguyen/onyxmenu/R;|Lcom/nguyen/onyxpayload/R;" $smaliOut
 ```
 
 Không có kết quả là đúng.
@@ -198,17 +198,17 @@ Thêm vào bên trong `<application>`:
 
 ```xml
 <meta-data
-    android:name="com.nguyen.nebulamenu.MENU_PROVIDER"
-    android:value="com.nguyen.nebulapayload.StandaloneMenuProvider" />
+    android:name="com.nguyen.onyxmenu.MENU_PROVIDER"
+    android:value="com.nguyen.onyxpayload.StandaloneMenuProvider" />
 
 <activity
-    android:name="com.nguyen.nebulapayload.NebulaPermissionActivity"
+    android:name="com.nguyen.onyxpayload.OnyxPermissionActivity"
     android:excludeFromRecents="true"
     android:exported="false"
     android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
 <service
-    android:name="com.nguyen.nebulamenu.overlay.MenuOverlayService"
+    android:name="com.nguyen.onyxmenu.overlay.MenuOverlayService"
     android:exported="false"
     android:foregroundServiceType="specialUse"
     android:stopWithTask="true">
@@ -231,7 +231,7 @@ Mở method:
 Ngay sau lời gọi `invoke-super ...->onCreate`, thêm:
 
 ```smali
-invoke-static {p0}, Lcom/nguyen/nebulapayload/NebulaBootstrap;->launch(Landroid/content/Context;)V
+invoke-static {p0}, Lcom/nguyen/onyxpayload/OnyxBootstrap;->launch(Landroid/content/Context;)V
 ```
 
 Ví dụ:
@@ -242,7 +242,7 @@ Ví dụ:
 
     invoke-super {p0, p1}, Landroid/app/Activity;->onCreate(Landroid/os/Bundle;)V
 
-    invoke-static {p0}, Lcom/nguyen/nebulapayload/NebulaBootstrap;->launch(Landroid/content/Context;)V
+    invoke-static {p0}, Lcom/nguyen/onyxpayload/OnyxBootstrap;->launch(Landroid/content/Context;)V
 
     # Phần code gốc tiếp tục ở đây.
 ```
@@ -301,14 +301,14 @@ Kiểm tra manifest:
 
 ```powershell
 & $apkanalyzer manifest print $signed |
-    Select-String "MENU_PROVIDER|NebulaPermissionActivity|MenuOverlayService|SYSTEM_ALERT_WINDOW"
+    Select-String "MENU_PROVIDER|OnyxPermissionActivity|MenuOverlayService|SYSTEM_ALERT_WINDOW"
 ```
 
 Kiểm tra class:
 
 ```powershell
 & $apkanalyzer dex packages $signed |
-    Select-String "NebulaBootstrap|StandaloneMenuProvider|ModernMenuView"
+    Select-String "OnyxBootstrap|StandaloneMenuProvider|ModernMenuView"
 ```
 
 Kiểm tra lời gọi trong launcher:
@@ -318,7 +318,7 @@ Kiểm tra lời gọi trong launcher:
     --class "com.example.MyLauncher" `
     --method "onCreate(Landroid/os/Bundle;)V" `
     $signed |
-    Select-String "NebulaBootstrap"
+    Select-String "OnyxBootstrap"
 ```
 
 ## 15. Chạy thử
@@ -328,7 +328,7 @@ Kiểm tra lời gọi trong launcher:
 3. Android mở trang “Hiển thị trên ứng dụng khác”.
 4. Bật quyền cho ứng dụng.
 5. Quay lại ứng dụng.
-6. Bubble Nebula xuất hiện.
+6. Bubble Onyx xuất hiện.
 7. Chạm bubble để mở menu.
 8. Chạm `—` để thu gọn về bubble; menu không có nút `×`.
 9. Vuốt ứng dụng khỏi Recent Apps để kiểm tra bubble và service cùng biến mất.
@@ -340,8 +340,8 @@ Nếu thiết bị/OEM không quay lại activity đúng cách, đóng và mở 
 Sửa:
 
 ```text
-apktool-payload/src/main/java/com/nguyen/nebulapayload/StandaloneMenuProvider.java
-apktool-payload/src/main/java/com/nguyen/nebulapayload/StandaloneFeatureBridge.java
+apktool-payload/src/main/java/com/nguyen/onyxpayload/StandaloneMenuProvider.java
+apktool-payload/src/main/java/com/nguyen/onyxpayload/StandaloneFeatureBridge.java
 ```
 
 Sau đó lặp lại từ bước build AAR, D8 và baksmali. Không chỉ rebuild thư mục Apktool cũ vì smali payload sẽ không tự cập nhật từ Java source.
@@ -358,7 +358,7 @@ Payload smali chưa được copy đủ, chọn sai multidex folder hoặc metad
 
 ### Hiện profile dự phòng
 
-`StandaloneMenuProvider` không được tìm thấy hoặc tạo profile lỗi. Kiểm tra Logcat tag `NebulaMenuEngine`.
+`StandaloneMenuProvider` không được tìm thấy hoặc tạo profile lỗi. Kiểm tra Logcat tag `OnyxMenuEngine`.
 
 ### Không có bubble
 
@@ -368,7 +368,7 @@ Kiểm tra:
 - Service tồn tại trong manifest.
 - Foreground-service permissions đầy đủ.
 - Launcher thật sự gọi bootstrap.
-- Logcat tag `NebulaPayload` và `NebulaMenuEngine`.
+- Logcat tag `OnyxPayload` và `OnyxMenuEngine`.
 
 ### Apktool build lỗi duplicate class
 

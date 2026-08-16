@@ -1,6 +1,6 @@
-# Nebula Android Menu Engine
+# Onyx Android Menu Engine
 
-Nebula là UI engine menu nổi dành cho Android. Phần giao diện, vòng đời overlay và renderer nằm trong module `menu-core`; mỗi ứng dụng chỉ cần cung cấp một `MenuProvider` để khai báo menu và một `FeatureBridge` để xử lý sự kiện.
+Onyx là UI engine menu nổi dành cho Android. Phần giao diện, vòng đời overlay và renderer nằm trong module `onyx-core`; mỗi ứng dụng chỉ cần cung cấp một `MenuProvider` để khai báo menu và một `FeatureBridge` để xử lý sự kiện.
 
 Giao diện chạy hoàn toàn bằng Android Views và Canvas, không phụ thuộc Compose, Material Components, mạng, quảng cáo hoặc thư viện UI bên thứ ba.
 
@@ -22,8 +22,8 @@ Giao diện chạy hoàn toàn bằng Android Views và Canvas, không phụ thu
 
 ```text
 AndroidCustomMenuMod/
-├── menu-core/                         # UI engine tái sử dụng
-│   └── src/main/java/com/nguyen/nebulamenu/
+├── onyx-core/                         # UI engine tái sử dụng
+│   └── src/main/java/com/nguyen/onyxmenu/
 │       ├── bridge/FeatureBridge.java
 │       ├── engine/                    # Tìm và nạp MenuProvider
 │       ├── model/                     # MenuProfile, tab, section, control
@@ -31,13 +31,13 @@ AndroidCustomMenuMod/
 │       ├── storage/                   # SharedPreferences theo profile
 │       └── ui/                        # Design token và custom View
 ├── app/                               # Ứng dụng preview
-│   └── src/main/java/com/nguyen/androidcustommenumod/profile/
+│   └── src/main/java/com/nguyen/onyxmenu/demo/profile/
 │       ├── DemoMenuProvider.java      # Khai báo menu demo
 │       └── DemoFeatureBridge.java     # Nhận sự kiện demo
 ├── apktool-payload/                   # Payload độc lập, không dùng host R
-│   └── src/main/java/com/nguyen/nebulapayload/
-│       ├── NebulaBootstrap.java
-│       ├── NebulaPermissionActivity.java
+│   └── src/main/java/com/nguyen/onyxpayload/
+│       ├── OnyxBootstrap.java
+│       ├── OnyxPermissionActivity.java
 │       ├── StandaloneMenuProvider.java
 │       └── StandaloneFeatureBridge.java
 └── docs/
@@ -50,7 +50,7 @@ AndroidCustomMenuMod/
 
 ## Thêm một nút mới
 
-Thêm control vào [DemoMenuProvider.java](app/src/main/java/com/nguyen/androidcustommenumod/profile/DemoMenuProvider.java):
+Thêm control vào [DemoMenuProvider.java](app/src/main/java/com/nguyen/onyxmenu/demo/profile/DemoMenuProvider.java):
 
 ```java
 .control(MenuControl.toggle(
@@ -82,7 +82,7 @@ Không cần sửa `ModernMenuView`, `MenuOverlayController` hoặc bất kỳ c
 
 ```xml
 <meta-data
-    android:name="com.nguyen.nebulamenu.MENU_PROVIDER"
+    android:name="com.nguyen.onyxmenu.MENU_PROVIDER"
     android:value="com.example.myapp.MyMenuProvider" />
 ```
 
@@ -108,7 +108,7 @@ $env:JAVA_HOME = "C:\duong-dan\toi\jdk-21"
 File đầu ra:
 
 - APK demo: `app/build/outputs/apk/debug/app-debug.apk`
-- AAR engine: `menu-core/build/outputs/aar/menu-core-release.aar`
+- AAR engine: `onyx-core/build/outputs/aar/onyx-core-release.aar`
 - AAR payload: `apktool-payload/build/outputs/aar/apktool-payload-release.aar`
 
 Yêu cầu:

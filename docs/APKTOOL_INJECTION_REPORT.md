@@ -27,12 +27,13 @@ SHA-256 APK gốc:
 
 ## Payload
 
-- Build từ `menu-core` và `apktool-payload`.
+- Build từ `onyx-core` và `apktool-payload`.
 - Hai `classes.jar` được compile bằng D8 với `--min-api 21`.
-- DEX payload: 61.268 byte.
+- DEX payload: 61.120 byte.
 - Số file smali: 52.
-- Package engine: `com.nguyen.nebulamenu`.
-- Package payload: `com.nguyen.nebulapayload`.
+- Package engine: `com.nguyen.onyxmenu`.
+- Package payload: `com.nguyen.onyxpayload`.
+- Không còn package, class hoặc chuỗi thương hiệu cũ trong payload.
 - Không có tham chiếu tới `R` của APK host.
 
 ## Thay đổi đã nhúng
@@ -40,10 +41,10 @@ SHA-256 APK gốc:
 - Thêm payload dưới dạng `classes3.dex`.
 - Thêm quyền overlay và foreground service.
 - Đăng ký `StandaloneMenuProvider` bằng metadata `MENU_PROVIDER`.
-- Đăng ký `NebulaPermissionActivity`.
+- Đăng ký `OnyxPermissionActivity`.
 - Đăng ký `MenuOverlayService` với type `specialUse`.
 - Service bám theo task bằng `stopWithTask=true` và `START_NOT_STICKY`.
-- Thêm lời gọi `NebulaBootstrap.launch(Context)` ngay sau `super.onCreate` của launcher.
+- Thêm lời gọi `OnyxBootstrap.launch(Context)` ngay sau `super.onCreate` của launcher.
 - Giữ nguyên APK gốc và toàn bộ source game.
 - Header chỉ có nút `—` để thu gọn; nút `×` đã được loại bỏ.
 - Vuốt game khỏi Recent Apps sẽ dừng service và xóa bubble.
@@ -51,13 +52,13 @@ SHA-256 APK gốc:
 ## APK đầu ra hiện tại
 
 ```text
-D:\APK_Toolkit_by_0xd00d\2 - Compiled\Hiep250x6-Nebula-UIEngine-v5-signed.apk
+D:\APK_Toolkit_by_0xd00d\2 - Compiled\Hiep250x6-Onyx-UIEngine-v6-signed.apk
 ```
 
 SHA-256:
 
 ```text
-79AB3C9D9898D34EB9B7A8D2B5BB0034F813B0DCA922FB148DD722AAAE79996C
+7B923B17F87C726EB7A0DF6A587BC0474DD0D1C1B9B2E951C3852686F63225C4
 ```
 
 Kích thước: 266.241.124 byte.
@@ -75,7 +76,7 @@ Kích thước: 266.241.124 byte.
 - Manifest APK cuối xác nhận `android:stopWithTask="true"`.
 - Bytecode APK cuối xác nhận `onStartCommand` trả về `START_NOT_STICKY` (`2`).
 - Bytecode header chỉ còn một nút có mô tả `Collapse menu` và không còn ký tự `×`.
-- Lint `app`, `menu-core`, `apktool-payload`: 0 issue.
+- Lint `app`, `onyx-core`, `apktool-payload`: 0 issue.
 - Unit test model: 3 test đạt, 0 failure.
 - Kiểm thử trên thiết bị: chưa thực hiện vì không có thiết bị/emulator ADB kết nối.
 

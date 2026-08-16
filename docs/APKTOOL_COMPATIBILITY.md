@@ -17,20 +17,20 @@ Apktool không thể:
 - Tự merge dependency hoặc consumer ProGuard rules.
 - Giữ nguyên chữ ký APK sau khi rebuild.
 
-Vì vậy phải build `menu-core` và `apktool-payload` trước, chuyển `classes.jar` thành DEX bằng D8 rồi chuyển DEX thành smali.
+Vì vậy phải build `onyx-core` và `apktool-payload` trước, chuyển `classes.jar` thành DEX bằng D8 rồi chuyển DEX thành smali.
 
 ## Hợp đồng bắt buộc của APK cuối
 
 APK sau khi rebuild phải có đủ:
 
-- Các class đã compile trong package `com.nguyen.nebulamenu`.
-- Các class payload trong package `com.nguyen.nebulapayload`.
+- Các class đã compile trong package `com.nguyen.onyxmenu`.
+- Các class payload trong package `com.nguyen.onyxpayload`.
 - `StandaloneMenuProvider` và `StandaloneFeatureBridge`.
-- `NebulaPermissionActivity`.
+- `OnyxPermissionActivity`.
 - `MenuOverlayService`.
-- Metadata `com.nguyen.nebulamenu.MENU_PROVIDER` trỏ tới đúng provider.
+- Metadata `com.nguyen.onyxmenu.MENU_PROVIDER` trỏ tới đúng provider.
 - Quyền overlay, foreground service, special-use và notification.
-- Một lời gọi `NebulaBootstrap.launch(Context)` từ điểm khởi động do bạn kiểm soát.
+- Một lời gọi `OnyxBootstrap.launch(Context)` từ điểm khởi động do bạn kiểm soát.
 
 Thiếu một thành phần có thể dẫn tới:
 
@@ -53,7 +53,7 @@ Thiếu một thành phần có thể dẫn tới:
 ## Phiên bản Android
 
 - Engine compile với min SDK 21.
-- `NebulaBootstrap` không chạy overlay trên API thấp hơn 23 vì Android chưa có luồng `Settings.canDrawOverlays` hiện đại.
+- `OnyxBootstrap` không chạy overlay trên API thấp hơn 23 vì Android chưa có luồng `Settings.canDrawOverlays` hiện đại.
 - Từ API 23 trở lên, lần chạy đầu mở trang “Hiển thị trên ứng dụng khác”.
 - Từ API 26 trở lên, bootstrap dùng `startForegroundService`.
 - APK target SDK mới cần khai báo foreground service type `specialUse` và permission tương ứng.
@@ -94,7 +94,7 @@ Nếu có source của ứng dụng, nên thêm:
 
 ```kotlin
 dependencies {
-    implementation(files("libs/menu-core-release.aar"))
+    implementation(files("libs/onyx-core-release.aar"))
 }
 ```
 
@@ -106,7 +106,7 @@ Chỉ dùng Apktool khi cần kiểm thử APK đã build hoặc không thể ch
 
 | Hiện tượng | Nguyên nhân thường gặp | Cách kiểm tra |
 |---|---|---|
-| Không mở trang cấp quyền | Chưa gọi bootstrap | Decompile launcher và tìm `NebulaBootstrap` |
+| Không mở trang cấp quyền | Chưa gọi bootstrap | Decompile launcher và tìm `OnyxBootstrap` |
 | Có quyền nhưng không có bubble | Service/permission bị thiếu | Kiểm tra manifest và Logcat |
 | Hiện profile dự phòng | Metadata/provider sai | So sánh class name đầy đủ |
 | `ClassNotFoundException` | Copy thiếu smali hoặc sai multidex | Dùng `apkanalyzer dex packages` |

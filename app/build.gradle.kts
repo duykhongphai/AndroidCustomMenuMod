@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace = "com.nguyen.androidcustommenumod"
+    namespace = "com.nguyen.onyxmenu.demo"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.nguyen.androidcustommenumod"
+        applicationId = "com.nguyen.onyxmenu.demo"
         minSdk = 23
         targetSdk = 37
         versionCode = 1
@@ -37,5 +37,5 @@ android {
 }
 
 dependencies {
-    implementation(project(":menu-core"))
+    implementation(project(":onyx-core"))
 }

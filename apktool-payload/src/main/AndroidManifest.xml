@@ -3,11 +3,11 @@
 
     <application>
         <meta-data
-            android:name="com.nguyen.nebulamenu.MENU_PROVIDER"
-            android:value="com.nguyen.nebulapayload.StandaloneMenuProvider" />
+            android:name="com.nguyen.onyxmenu.MENU_PROVIDER"
+            android:value="com.nguyen.onyxpayload.StandaloneMenuProvider" />
 
         <activity
-            android:name=".NebulaPermissionActivity"
+            android:name=".OnyxPermissionActivity"
             android:excludeFromRecents="true"
             android:exported="false"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />

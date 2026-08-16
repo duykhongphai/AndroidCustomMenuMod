@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Nebula Menu</string>
+    <string name="app_name">Onyx Menu</string>
     <string name="status_active">● ACTIVE</string>
     <string name="status_ready">READY</string>
     <string name="status_access_needed">ACCESS NEEDED</string>

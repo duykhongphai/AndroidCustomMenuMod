@@ -6,13 +6,13 @@ Tài liệu này mô tả cách đổi nội dung, xử lý sự kiện và giao
 
 Khi chạy app demo:
 
-- Khai báo menu: `app/src/main/java/com/nguyen/androidcustommenumod/profile/DemoMenuProvider.java`
-- Xử lý sự kiện: `app/src/main/java/com/nguyen/androidcustommenumod/profile/DemoFeatureBridge.java`
+- Khai báo menu: `app/src/main/java/com/nguyen/onyxmenu/demo/profile/DemoMenuProvider.java`
+- Xử lý sự kiện: `app/src/main/java/com/nguyen/onyxmenu/demo/profile/DemoFeatureBridge.java`
 
 Khi build payload Apktool:
 
-- Khai báo menu: `apktool-payload/src/main/java/com/nguyen/nebulapayload/StandaloneMenuProvider.java`
-- Xử lý sự kiện: `apktool-payload/src/main/java/com/nguyen/nebulapayload/StandaloneFeatureBridge.java`
+- Khai báo menu: `apktool-payload/src/main/java/com/nguyen/onyxpayload/StandaloneMenuProvider.java`
+- Xử lý sự kiện: `apktool-payload/src/main/java/com/nguyen/onyxpayload/StandaloneFeatureBridge.java`
 
 Không nên thêm logic riêng vào `ModernMenuView` hoặc `MenuOverlayController`.
 
@@ -184,7 +184,7 @@ MenuTab.builder("developer", "DEV")
 Sau đó thêm tab vào profile:
 
 ```java
-MenuProfile.builder("developer_profile", "NEBULA")
+MenuProfile.builder("developer_profile", "ONYX")
         .subtitle("DEVELOPER TOOLS")
         .version("v1.0.0")
         .footer("LOCAL DEBUG PROFILE")
@@ -199,7 +199,7 @@ MenuProfile.builder("developer_profile", "NEBULA")
 public final class MyMenuProvider implements MenuProvider {
     @Override
     public MenuProfile createProfile(Context context) {
-        return MenuProfile.builder("my_profile", "NEBULA")
+        return MenuProfile.builder("my_profile", "ONYX")
                 .subtitle("MY CONTROL CENTER")
                 .version("v1.0.0")
                 .footer("LOCAL PROFILE")
@@ -218,7 +218,7 @@ public final class MyMenuProvider implements MenuProvider {
 
 ```xml
 <meta-data
-    android:name="com.nguyen.nebulamenu.MENU_PROVIDER"
+    android:name="com.nguyen.onyxmenu.MENU_PROVIDER"
     android:value="com.example.MyMenuProvider" />
 ```
 
@@ -234,7 +234,7 @@ profile/
 └── DiagnosticsMenuProvider.java
 ```
 
-Mỗi ứng dụng hoặc product flavor chọn provider tương ứng qua manifest. Cách này giúp mọi profile tự nhận bản sửa lỗi và nâng cấp giao diện từ `menu-core`.
+Mỗi ứng dụng hoặc product flavor chọn provider tương ứng qua manifest. Cách này giúp mọi profile tự nhận bản sửa lỗi và nâng cấp giao diện từ `onyx-core`.
 
 Không nên tạo một Git branch dài hạn cho mỗi bộ menu vì sẽ khó merge bản sửa engine.
 
@@ -243,7 +243,7 @@ Không nên tạo một Git branch dài hạn cho mỗi bộ menu vì sẽ khó 
 Các design token nằm trong:
 
 ```text
-menu-core/src/main/java/com/nguyen/nebulamenu/ui/Design.java
+onyx-core/src/main/java/com/nguyen/onyxmenu/ui/Design.java
 ```
 
 Ví dụ:
@@ -262,7 +262,7 @@ Sau khi đổi design token, build lại AAR hoặc payload rồi tái nhúng AP
 Logo được vẽ bằng Canvas trong:
 
 ```text
-menu-core/src/main/java/com/nguyen/nebulamenu/ui/BrandMarkView.java
+onyx-core/src/main/java/com/nguyen/onyxmenu/ui/BrandMarkView.java
 ```
 
 Không cần thêm PNG hoặc resource vào APK host. Điều này giúp workflow Apktool ít bị xung đột resource ID.

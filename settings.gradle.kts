@@ -14,7 +14,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "AndroidCustomMenuMod"
+rootProject.name = "OnyxAndroidMenuEngine"
 include(":app")
 include(":apktool-payload")
-include(":menu-core")
+include(":onyx-core")

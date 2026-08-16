@@ -1,6 +1,6 @@
 # Kiến trúc UI engine
 
-Nebula tách giao diện dùng chung khỏi nội dung menu và hành vi riêng của từng ứng dụng.
+Onyx tách giao diện dùng chung khỏi nội dung menu và hành vi riêng của từng ứng dụng.
 
 ## Luồng hoạt động
 
@@ -24,9 +24,9 @@ MenuOverlayService ──► MenuOverlayController
                            FeatureBridge
 ```
 
-## Module `menu-core`
+## Module `onyx-core`
 
-`menu-core` chứa toàn bộ phần ổn định của engine:
+`onyx-core` chứa toàn bộ phần ổn định của engine:
 
 - `engine`: đọc metadata, tạo provider và cung cấp profile dự phòng.
 - `model`: các model bất biến cho profile, tab, section, hero, metric, option và control.
@@ -85,7 +85,7 @@ Engine không dùng đăng ký provider bằng biến static. Android có thể 
 
 ## R8
 
-Provider được nạp bằng reflection. `menu-core/consumer-rules.pro` giữ mọi class implement `MenuProvider` và constructor công khai không tham số. Khi dùng AAR qua Gradle, rules này được nhập tự động.
+Provider được nạp bằng reflection. `onyx-core/consumer-rules.pro` giữ mọi class implement `MenuProvider` và constructor công khai không tham số. Khi dùng AAR qua Gradle, rules này được nhập tự động.
 
 Trong workflow Apktool thủ công, phải giữ nguyên tên class provider trong DEX/smali vì consumer rules không còn tham gia quá trình build host.
 
@@ -93,9 +93,9 @@ Trong workflow Apktool thủ công, phải giữ nguyên tên class provider tro
 
 Payload độc lập gồm:
 
-- `NebulaBootstrap`: kiểm tra quyền và khởi động engine.
-- `NebulaPermissionActivity`: mở trang cấp quyền overlay rồi quay lại khởi động service.
+- `OnyxBootstrap`: kiểm tra quyền và khởi động engine.
+- `OnyxPermissionActivity`: mở trang cấp quyền overlay rồi quay lại khởi động service.
 - `StandaloneMenuProvider`: profile demo chỉ thao tác trạng thái UI.
 - `StandaloneFeatureBridge`: chỉ ghi sự kiện vào Logcat.
 
-Payload không có resource riêng và không chứa logic game. Khi build cùng `menu-core`, hai `classes.jar` có thể được D8 thành một DEX rồi chuyển sang smali.
+Payload không có resource riêng và không chứa logic game. Khi build cùng `onyx-core`, hai `classes.jar` có thể được D8 thành một DEX rồi chuyển sang smali.

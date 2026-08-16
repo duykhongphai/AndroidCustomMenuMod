@@ -3,11 +3,18 @@ plugins {
 }
 
 android {
-    namespace = "com.nguyen.onyxpayload"
+    namespace = "com.nguyen.onyxmenu"
     compileSdk = 37
 
     defaultConfig {
         minSdk = 21
+        consumerProguardFiles("consumer-rules.pro")
+    }
+
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+        }
     }
 
     compileOptions {
@@ -22,5 +29,5 @@ android {
 }
 
 dependencies {
-    implementation(project(":onyx-core"))
+    testImplementation("junit:junit:4.13.2")
 }
