@@ -3,18 +3,11 @@ plugins {
 }
 
 android {
-    namespace = "com.nguyen.nebulamenu"
+    namespace = "com.nguyen.nebulapayload"
     compileSdk = 37
 
     defaultConfig {
         minSdk = 21
-        consumerProguardFiles("consumer-rules.pro")
-    }
-
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-        }
     }
 
     compileOptions {
@@ -29,5 +22,5 @@ android {
 }
 
 dependencies {
-    testImplementation("junit:junit:4.13.2")
+    implementation(project(":menu-core"))
 }

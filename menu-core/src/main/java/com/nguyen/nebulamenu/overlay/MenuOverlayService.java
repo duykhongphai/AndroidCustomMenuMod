@@ -11,12 +11,15 @@ import android.os.Build;
 import android.os.IBinder;
 import android.provider.Settings;
 
-import com.nguyen.nebulamenu.R;
 import com.nguyen.nebulamenu.engine.LoadedMenu;
 import com.nguyen.nebulamenu.engine.MenuProviderLoader;
 
 public final class MenuOverlayService extends Service {
     private static final String CHANNEL_ID = "nebula_overlay_channel";
+    private static final String CHANNEL_NAME = "Nebula overlay";
+    private static final String CHANNEL_DESCRIPTION = "Shows when the Nebula floating menu is active";
+    private static final String NOTIFICATION_TITLE = "Nebula overlay is active";
+    private static final String NOTIFICATION_TEXT = "Tap to open the host app";
     private static final int NOTIFICATION_ID = 4201;
     private static volatile boolean running;
     private MenuOverlayController controller;
@@ -32,7 +35,8 @@ public final class MenuOverlayService extends Service {
         createNotificationChannel();
         startForeground(NOTIFICATION_ID, createNotification());
 
-        if (!Settings.canDrawOverlays(this)) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                && !Settings.canDrawOverlays(this)) {
             stopSelf();
             return;
         }
@@ -71,10 +75,10 @@ public final class MenuOverlayService extends Service {
         }
         NotificationChannel channel = new NotificationChannel(
                 CHANNEL_ID,
-                getString(R.string.nebula_overlay_channel_name),
+                CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_LOW
         );
-        channel.setDescription(getString(R.string.nebula_overlay_channel_description));
+        channel.setDescription(CHANNEL_DESCRIPTION);
         channel.setShowBadge(false);
         NotificationManager manager = getSystemService(NotificationManager.class);
         manager.createNotificationChannel(channel);
@@ -99,9 +103,9 @@ public final class MenuOverlayService extends Service {
                 ? new Notification.Builder(this, CHANNEL_ID)
                 : new Notification.Builder(this);
         return builder
-                .setSmallIcon(R.drawable.nebula_ic_notification)
-                .setContentTitle(getString(R.string.nebula_overlay_notification_title))
-                .setContentText(getString(R.string.nebula_overlay_notification_text))
+                .setSmallIcon(android.R.drawable.stat_notify_more)
+                .setContentTitle(NOTIFICATION_TITLE)
+                .setContentText(NOTIFICATION_TEXT)
                 .setContentIntent(pendingIntent)
                 .setOngoing(true)
                 .setCategory(Notification.CATEGORY_SERVICE)

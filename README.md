@@ -21,6 +21,7 @@ The production UI has no Compose, Material Components, networking, analytics, or
 
 ```text
 AndroidCustomMenuMod/
+├── apktool-payload/                    # Resource-free standalone payload
 ├── menu-core/                         # Reusable Android library
 │   └── src/main/java/com/nguyen/nebulamenu/
 │       ├── bridge/FeatureBridge.java
@@ -38,7 +39,8 @@ AndroidCustomMenuMod/
 └── docs/
     ├── ARCHITECTURE.md
     ├── CUSTOMIZATION.md
-    └── APKTOOL_COMPATIBILITY.md
+    ├── APKTOOL_COMPATIBILITY.md
+    └── APKTOOL_INJECTION_REPORT.md
 ```
 
 ## Add a control
@@ -94,6 +96,7 @@ Outputs:
 
 - Demo APK: `app/build/outputs/apk/debug/app-debug.apk`
 - Reusable AAR: `menu-core/build/outputs/aar/menu-core-release.aar`
+- Standalone payload AAR: `apktool-payload/build/outputs/aar/apktool-payload-release.aar`
 
 Requirements:
 
@@ -101,13 +104,15 @@ Requirements:
 - Gradle 9.7.
 - JDK 17 or newer.
 - Android SDK 37.
-- Android 6.0 (API 23) or newer.
+- Engine: Android 5.0 (API 21) or newer; overlay permission bootstrap activates on API 23+.
 
 ## Apktool compatibility
 
 The engine architecture remains compatible with an Apktool-based workflow for an APK you own, but Apktool cannot consume an AAR or Java source directly. The compiled classes, manifest declarations, and small set of resources must be present in the final APK.
 
 Source-level/AAR integration is strongly preferred because Gradle performs manifest, resource, DEX, and R8 merging safely. See [docs/APKTOOL_COMPATIBILITY.md](docs/APKTOOL_COMPATIBILITY.md) for the compatibility contract and limitations.
+
+The `apktool-payload` module supplies a resource-free provider, Logcat-only bridge, overlay-permission activity, and bootstrap entry point for authorized Apktool compatibility testing.
 
 ## License
 

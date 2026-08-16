@@ -17,7 +17,6 @@ For the engine to start, the final APK must contain all of the following:
 - The `MenuOverlayService` declaration.
 - Overlay, foreground-service, special-use, and notification permissions appropriate to the target Android version.
 - Manifest metadata named `com.nguyen.nebulamenu.MENU_PROVIDER` whose value is the provider's exact class name.
-- The `nebula_ic_notification` drawable and `nebula_overlay_*` string resources.
 - A host-controlled startup path that starts `MenuOverlayService` after the user has granted overlay access.
 
 If one part is absent, the app may show the fallback profile, fail to display the overlay, or be stopped by Android.
@@ -26,6 +25,7 @@ If one part is absent, the app may show the fallback profile, fail to display th
 
 - It has no third-party runtime dependencies.
 - Menu layouts are created programmatically.
+- Engine and payload code do not reference host `R` values.
 - Profile content is ordinary Java model construction.
 - Provider selection is a single manifest metadata value.
 - Resource names use the `nebula_` prefix to reduce collisions.
@@ -40,3 +40,17 @@ If one part is absent, the app may show the fallback profile, fail to display th
 - Vendor protections, anti-tamper systems, and online-service rules are outside the UI engine and are not bypassed by it.
 
 For software you control, integrating the AAR at source level is more reliable than modifying the finished APK. Apktool should be reserved for authorized compatibility testing or environments where the original source build is unavailable.
+
+## Standalone payload
+
+`apktool-payload` provides a ready-to-compile compatibility payload. A validated build flow is:
+
+1. Build `menu-core` and `apktool-payload` release AARs.
+2. Compile both `classes.jar` files to one DEX with D8.
+3. Disassemble that DEX with baksmali.
+4. Place the resulting engine/payload smali in a new multidex folder.
+5. Merge the permissions, provider metadata, permission activity, and service declarations.
+6. Call `NebulaBootstrap.launch(Context)` from an authorized host startup point.
+7. Rebuild, zipalign, and sign with an appropriate test or release key.
+
+This workflow only supplies the overlay UI. It does not add host-specific feature behavior.

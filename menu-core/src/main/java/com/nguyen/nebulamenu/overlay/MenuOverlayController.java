@@ -121,7 +121,8 @@ public final class MenuOverlayController {
     }
 
     private void attach(View view, WindowManager.LayoutParams params) {
-        if (!Settings.canDrawOverlays(context)) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                && !Settings.canDrawOverlays(context)) {
             context.stopService(new Intent(context, MenuOverlayService.class));
             return;
         }

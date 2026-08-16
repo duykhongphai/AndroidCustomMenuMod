@@ -36,6 +36,19 @@ The Android library owns all stable engine behavior:
 
 `menu-core` does not reference the demo app. Its notification opens the host package's launcher activity dynamically.
 
+The engine also avoids host resource IDs: its notification uses an Android framework icon and internal text constants. This lets compiled engine code move between authorized APK test builds without patching generated `R` references.
+
+## `apktool-payload`
+
+The standalone payload module contains:
+
+- `NebulaBootstrap`: starts the engine or opens the overlay permission flow.
+- `NebulaPermissionActivity`: returns from Android settings and starts the service.
+- `StandaloneMenuProvider`: a safe profile containing UI-only demo controls.
+- `StandaloneFeatureBridge`: writes events to Logcat and does not modify host behavior.
+
+The module deliberately contains no application resources or game-specific code.
+
 ## Host contract
 
 A host supplies one class implementing `MenuProvider`:
