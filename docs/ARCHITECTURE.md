@@ -95,6 +95,7 @@ Payload độc lập gồm:
 
 - `OnyxBootstrap`: kiểm tra quyền và khởi động engine.
 - `OnyxPermissionActivity`: mở trang cấp quyền overlay rồi quay lại khởi động service.
+- `MenuFreeFireProvider`: profile `menufreefire` gồm 9 toggle và bridge no-op để kiểm tra UI.
 - `StandaloneMenuProvider`: profile demo chỉ thao tác trạng thái UI.
 - `StandaloneFeatureBridge`: chỉ ghi sự kiện vào Logcat.
 

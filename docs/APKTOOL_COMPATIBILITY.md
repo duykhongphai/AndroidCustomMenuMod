@@ -25,7 +25,7 @@ APK sau khi rebuild phải có đủ:
 
 - Các class đã compile trong package `com.nguyen.onyxmenu`.
 - Các class payload trong package `com.nguyen.onyxpayload`.
-- `StandaloneMenuProvider` và `StandaloneFeatureBridge`.
+- `MenuFreeFireProvider` đang được metadata chọn, hoặc một provider khác có trong payload.
 - `OnyxPermissionActivity`.
 - `MenuOverlayService`.
 - Metadata `com.nguyen.onyxmenu.MENU_PROVIDER` trỏ tới đúng provider.

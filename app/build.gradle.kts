@@ -38,4 +38,5 @@ android {
 
 dependencies {
     implementation(project(":onyx-core"))
+    implementation(project(":apktool-payload"))
 }

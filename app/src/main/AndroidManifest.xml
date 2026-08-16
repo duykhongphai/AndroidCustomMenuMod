@@ -13,7 +13,7 @@
 
         <meta-data
             android:name="com.nguyen.onyxmenu.MENU_PROVIDER"
-            android:value="com.nguyen.onyxmenu.demo.profile.DemoMenuProvider" />
+            android:value="com.nguyen.onyxpayload.MenuFreeFireProvider" />
 
         <activity
             android:name=".MainActivity"

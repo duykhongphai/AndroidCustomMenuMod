@@ -38,6 +38,7 @@ AndroidCustomMenuMod/
 │   └── src/main/java/com/nguyen/onyxpayload/
 │       ├── OnyxBootstrap.java
 │       ├── OnyxPermissionActivity.java
+│       ├── MenuFreeFireProvider.java  # Profile menufreefire chỉ có UI
 │       ├── StandaloneMenuProvider.java
 │       └── StandaloneFeatureBridge.java
 └── docs/
@@ -47,6 +48,12 @@ AndroidCustomMenuMod/
     ├── HUONG_DAN_APKTOOL.md
     └── APKTOOL_INJECTION_REPORT.md
 ```
+
+## Profile `menufreefire`
+
+App preview và payload Apktool đang chọn `MenuFreeFireProvider`. Profile này chỉ có 9 toggle giao diện, mặc định đều tắt và được lưu bằng `SharedPreferences`; `FeatureBridge` của profile là no-op nên không chứa hook hoặc logic tác động trò chơi.
+
+Muốn quay lại profile demo tổng quát, đổi metadata `MENU_PROVIDER` thành `com.nguyen.onyxpayload.StandaloneMenuProvider`.
 
 ## Thêm một nút mới
 

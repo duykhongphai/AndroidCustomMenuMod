@@ -199,7 +199,7 @@ Thêm vào bên trong `<application>`:
 ```xml
 <meta-data
     android:name="com.nguyen.onyxmenu.MENU_PROVIDER"
-    android:value="com.nguyen.onyxpayload.StandaloneMenuProvider" />
+    android:value="com.nguyen.onyxpayload.MenuFreeFireProvider" />
 
 <activity
     android:name="com.nguyen.onyxpayload.OnyxPermissionActivity"
@@ -308,7 +308,7 @@ Kiểm tra class:
 
 ```powershell
 & $apkanalyzer dex packages $signed |
-    Select-String "OnyxBootstrap|StandaloneMenuProvider|ModernMenuView"
+    Select-String "OnyxBootstrap|MenuFreeFireProvider|ModernMenuView"
 ```
 
 Kiểm tra lời gọi trong launcher:
@@ -340,9 +340,10 @@ Nếu thiết bị/OEM không quay lại activity đúng cách, đóng và mở 
 Sửa:
 
 ```text
-apktool-payload/src/main/java/com/nguyen/onyxpayload/StandaloneMenuProvider.java
-apktool-payload/src/main/java/com/nguyen/onyxpayload/StandaloneFeatureBridge.java
+apktool-payload/src/main/java/com/nguyen/onyxpayload/MenuFreeFireProvider.java
 ```
+
+Profile này dùng bridge no-op và chỉ phục vụ kiểm tra giao diện. Nếu cần bridge mẫu ghi Logcat, xem `StandaloneFeatureBridge.java`.
 
 Sau đó lặp lại từ bước build AAR, D8 và baksmali. Không chỉ rebuild thư mục Apktool cũ vì smali payload sẽ không tự cập nhật từ Java source.
 
@@ -358,7 +359,7 @@ Payload smali chưa được copy đủ, chọn sai multidex folder hoặc metad
 
 ### Hiện profile dự phòng
 
-`StandaloneMenuProvider` không được tìm thấy hoặc tạo profile lỗi. Kiểm tra Logcat tag `OnyxMenuEngine`.
+`MenuFreeFireProvider` không được tìm thấy hoặc tạo profile lỗi. Kiểm tra Logcat tag `OnyxMenuEngine`.
 
 ### Không có bubble
 
@@ -368,7 +369,7 @@ Kiểm tra:
 - Service tồn tại trong manifest.
 - Foreground-service permissions đầy đủ.
 - Launcher thật sự gọi bootstrap.
-- Logcat tag `OnyxPayload` và `OnyxMenuEngine`.
+- Logcat tag `OnyxMenuEngine`. Profile `menufreefire` không ghi sự kiện toggle vì bridge là no-op.
 
 ### Apktool build lỗi duplicate class
 
