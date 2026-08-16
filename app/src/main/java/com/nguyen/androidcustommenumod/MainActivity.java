@@ -2,8 +2,6 @@ package com.nguyen.androidcustommenumod;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.ActivityManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -25,12 +23,12 @@ import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.nguyen.androidcustommenumod.overlay.MenuOverlayService;
-import com.nguyen.androidcustommenumod.ui.BrandMarkView;
-import com.nguyen.androidcustommenumod.ui.Design;
-import com.nguyen.androidcustommenumod.ui.ModernSlider;
-import com.nguyen.androidcustommenumod.ui.ModernToggle;
-import com.nguyen.androidcustommenumod.ui.NebulaBackgroundView;
+import com.nguyen.nebulamenu.overlay.MenuOverlayService;
+import com.nguyen.nebulamenu.ui.BrandMarkView;
+import com.nguyen.nebulamenu.ui.Design;
+import com.nguyen.nebulamenu.ui.ModernSlider;
+import com.nguyen.nebulamenu.ui.ModernToggle;
+import com.nguyen.nebulamenu.ui.NebulaBackgroundView;
 
 public final class MainActivity extends Activity {
     private static final int REQUEST_OVERLAY = 1001;
@@ -477,14 +475,7 @@ public final class MainActivity extends Activity {
         }
     }
 
-    @SuppressWarnings("deprecation")
     private boolean isOverlayServiceRunning() {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (MenuOverlayService.class.getName().equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
+        return MenuOverlayService.isRunning();
     }
 }

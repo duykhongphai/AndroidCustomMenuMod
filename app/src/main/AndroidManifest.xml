@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -16,6 +11,10 @@
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules">
 
+        <meta-data
+            android:name="com.nguyen.nebulamenu.MENU_PROVIDER"
+            android:value="com.nguyen.androidcustommenumod.profile.DemoMenuProvider" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -25,15 +24,6 @@
             </intent-filter>
         </activity>
 
-        <service
-            android:name=".overlay.MenuOverlayService"
-            android:exported="false"
-            android:foregroundServiceType="specialUse"
-            android:stopWithTask="false">
-            <property
-                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="User-initiated customizable overlay for apps owned or tested by the user" />
-        </service>
     </application>
 
 </manifest>

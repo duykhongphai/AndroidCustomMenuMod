@@ -35,3 +35,7 @@ android {
         checkReleaseBuilds = true
     }
 }
+
+dependencies {
+    implementation(project(":menu-core"))
+}

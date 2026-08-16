@@ -1,4 +1,4 @@
-package com.nguyen.androidcustommenumod.overlay;
+package com.nguyen.nebulamenu.overlay;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,22 +13,24 @@ import android.view.ViewConfiguration;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
-import com.nguyen.androidcustommenumod.bridge.FeatureBridge;
-import com.nguyen.androidcustommenumod.storage.PreferenceStore;
-import com.nguyen.androidcustommenumod.ui.BrandMarkView;
-import com.nguyen.androidcustommenumod.ui.Design;
+import com.nguyen.nebulamenu.bridge.FeatureBridge;
+import com.nguyen.nebulamenu.model.MenuProfile;
+import com.nguyen.nebulamenu.storage.PreferenceStore;
+import com.nguyen.nebulamenu.ui.BrandMarkView;
+import com.nguyen.nebulamenu.ui.Design;
 
 public final class MenuOverlayController {
     private final Context context;
     private final WindowManager windowManager;
+    private final MenuProfile profile;
     private final FeatureBridge bridge;
     private final PreferenceStore preferences;
     private View attachedView;
     private WindowManager.LayoutParams attachedParams;
-    private boolean expanded;
 
-    public MenuOverlayController(Context context, FeatureBridge bridge) {
+    public MenuOverlayController(Context context, MenuProfile profile, FeatureBridge bridge) {
         this.context = context;
+        this.profile = profile;
         this.bridge = bridge;
         this.preferences = new PreferenceStore(context);
         this.windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
@@ -47,8 +49,6 @@ public final class MenuOverlayController {
 
     private void showBubble(int x, int y) {
         removeAttachedView();
-        expanded = false;
-
         int size = Design.dp(context, 68);
         FrameLayout bubble = new FrameLayout(context);
         bubble.setContentDescription("Open Nebula control center");
@@ -86,8 +86,6 @@ public final class MenuOverlayController {
 
     private void showMenu(int x, int y) {
         removeAttachedView();
-        expanded = true;
-
         int screenWidth = context.getResources().getDisplayMetrics().widthPixels;
         int screenHeight = context.getResources().getDisplayMetrics().heightPixels;
         int width = Math.min(Design.dp(context, 370), screenWidth - Design.dp(context, 20));
@@ -95,7 +93,7 @@ public final class MenuOverlayController {
         int menuX = clamp(x, Design.dp(context, 8), Math.max(Design.dp(context, 8), screenWidth - width - Design.dp(context, 8)));
         int menuY = clamp(y, Design.dp(context, 16), Math.max(Design.dp(context, 16), screenHeight - height - Design.dp(context, 16)));
 
-        ModernMenuView menu = new ModernMenuView(context, bridge, preferences);
+        ModernMenuView menu = new ModernMenuView(context, profile, bridge, preferences);
         menu.setOnCollapseListener(() -> showBubble(attachedParams.x, attachedParams.y));
         menu.setOnCloseListener(() -> context.stopService(new Intent(context, MenuOverlayService.class)));
 

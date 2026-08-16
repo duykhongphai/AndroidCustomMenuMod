@@ -1,4 +1,4 @@
-package com.nguyen.androidcustommenumod.storage;
+package com.nguyen.nebulamenu.storage;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -28,6 +28,14 @@ public final class PreferenceStore {
         preferences.edit().putFloat(key, value).apply();
     }
 
+    public String getString(String key, String fallback) {
+        return preferences.getString(key, fallback);
+    }
+
+    public void putString(String key, String value) {
+        preferences.edit().putString(key, value).apply();
+    }
+
     public int getInt(String key, int fallback) {
         return preferences.getInt(key, fallback);
     }
@@ -43,5 +51,9 @@ public final class PreferenceStore {
                 .putInt("bubble_x", bubbleX)
                 .putInt("bubble_y", bubbleY)
                 .apply();
+    }
+
+    public String key(String profileId, String controlId) {
+        return "profile:" + profileId + ":" + controlId;
     }
 }

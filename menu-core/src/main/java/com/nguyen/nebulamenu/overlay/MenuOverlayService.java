@@ -1,4 +1,4 @@
-package com.nguyen.androidcustommenumod.overlay;
+package com.nguyen.nebulamenu.overlay;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -6,22 +6,29 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.IBinder;
 import android.provider.Settings;
 
-import com.nguyen.androidcustommenumod.MainActivity;
-import com.nguyen.androidcustommenumod.R;
-import com.nguyen.androidcustommenumod.bridge.DemoFeatureBridge;
+import com.nguyen.nebulamenu.R;
+import com.nguyen.nebulamenu.engine.LoadedMenu;
+import com.nguyen.nebulamenu.engine.MenuProviderLoader;
 
 public final class MenuOverlayService extends Service {
     private static final String CHANNEL_ID = "nebula_overlay_channel";
     private static final int NOTIFICATION_ID = 4201;
+    private static volatile boolean running;
     private MenuOverlayController controller;
+
+    public static boolean isRunning() {
+        return running;
+    }
 
     @Override
     public void onCreate() {
         super.onCreate();
+        running = true;
         createNotificationChannel();
         startForeground(NOTIFICATION_ID, createNotification());
 
@@ -29,7 +36,12 @@ public final class MenuOverlayService extends Service {
             stopSelf();
             return;
         }
-        controller = new MenuOverlayController(this, new DemoFeatureBridge());
+        LoadedMenu loadedMenu = MenuProviderLoader.load(this);
+        controller = new MenuOverlayController(
+                this,
+                loadedMenu.getProfile(),
+                loadedMenu.getBridge()
+        );
         controller.show();
     }
 
@@ -40,6 +52,7 @@ public final class MenuOverlayService extends Service {
 
     @Override
     public void onDestroy() {
+        running = false;
         if (controller != null) {
             controller.destroy();
             controller = null;
@@ -58,17 +71,24 @@ public final class MenuOverlayService extends Service {
         }
         NotificationChannel channel = new NotificationChannel(
                 CHANNEL_ID,
-                getString(R.string.overlay_channel_name),
+                getString(R.string.nebula_overlay_channel_name),
                 NotificationManager.IMPORTANCE_LOW
         );
-        channel.setDescription("Shows when the Nebula floating menu is active");
+        channel.setDescription(getString(R.string.nebula_overlay_channel_description));
         channel.setShowBadge(false);
         NotificationManager manager = getSystemService(NotificationManager.class);
         manager.createNotificationChannel(channel);
     }
 
+    @SuppressWarnings("deprecation")
     private Notification createNotification() {
-        Intent openIntent = new Intent(this, MainActivity.class);
+        Intent openIntent = getPackageManager().getLaunchIntentForPackage(getPackageName());
+        if (openIntent == null) {
+            openIntent = new Intent(
+                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    Uri.parse("package:" + getPackageName())
+            );
+        }
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 this,
                 0,
@@ -79,9 +99,9 @@ public final class MenuOverlayService extends Service {
                 ? new Notification.Builder(this, CHANNEL_ID)
                 : new Notification.Builder(this);
         return builder
-                .setSmallIcon(R.drawable.ic_notification)
-                .setContentTitle(getString(R.string.overlay_notification_title))
-                .setContentText(getString(R.string.overlay_notification_text))
+                .setSmallIcon(R.drawable.nebula_ic_notification)
+                .setContentTitle(getString(R.string.nebula_overlay_notification_title))
+                .setContentText(getString(R.string.nebula_overlay_notification_text))
                 .setContentIntent(pendingIntent)
                 .setOngoing(true)
                 .setCategory(Notification.CATEGORY_SERVICE)

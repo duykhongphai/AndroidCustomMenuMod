@@ -1,49 +1,67 @@
 # Architecture
 
-Nebula separates presentation, overlay lifecycle, preferences, and behavior. This keeps the visual layer reusable without coupling it to a specific application.
+Nebula separates reusable presentation from app-specific menu definitions and behavior.
 
-## Event flow
+## Runtime flow
 
 ```text
-MainActivity
-    │ grants overlay permission and starts
+Host application manifest
+    │ MENU_PROVIDER metadata
     ▼
-MenuOverlayService
-    │ owns foreground-service lifecycle
-    ▼
-MenuOverlayController
-    │ attaches bubble/menu through WindowManager
-    ▼
-ModernMenuView
-    │ emits semantic IDs and values
-    ▼
-FeatureBridge
-    │
-    └── DemoFeatureBridge → Logcat only
+MenuProviderLoader
+    │ creates
+    ├── MenuProfile ──────────────┐
+    └── FeatureBridge             │
+                                  ▼
+MenuOverlayService ──► MenuOverlayController
+                                  │
+                                  ▼
+                           ModernMenuView
+                                  │
+                   renders profile and emits events
+                                  │
+                                  ▼
+                           FeatureBridge
 ```
 
-## Presentation
+## `menu-core`
 
-`Design` contains colors, density conversion, text factories, and drawable factories. Custom controls depend on those tokens instead of duplicating visual values.
+The Android library owns all stable engine behavior:
 
-`ModernMenuView` composes the full menu programmatically. This avoids XML resource-name collisions and third-party UI dependencies. Each user-facing setting has a stable semantic ID such as `focus_mode` or `surface_opacity`.
+- `engine`: discovers the host provider from manifest metadata and supplies a fallback.
+- `model`: immutable profile, tab, section, hero, metric, option, and control definitions.
+- `overlay`: owns the foreground service, `WindowManager`, drag behavior, and dynamic renderer.
+- `storage`: namespaces settings by profile ID and persists the bubble position globally.
+- `ui`: contains design tokens and custom Android Views.
 
-## Overlay lifecycle
+`menu-core` does not reference the demo app. Its notification opens the host package's launcher activity dynamically.
 
-`MenuOverlayService` starts as a foreground service and owns a `MenuOverlayController`. The controller attaches exactly one `WindowManager` view at a time:
+## Host contract
 
-- Collapsed state: a 68 dp draggable brand bubble.
-- Expanded state: a responsive control center clamped to the visible display.
-- Destroyed state: the attached view is removed immediately.
+A host supplies one class implementing `MenuProvider`:
 
-The Android manifest declares the overlay and foreground-service permissions. Notification permission is optional for starting the overlay but is requested so users can see its ongoing notification normally.
+```java
+public interface MenuProvider {
+    MenuProfile createProfile(Context context);
+    FeatureBridge createBridge(Context context);
+}
+```
 
-## Behavior bridge
+The profile is declarative and immutable after construction. The bridge receives semantic control IDs and is the only place app-specific behavior belongs.
 
-`FeatureBridge` is intentionally small. Replace `DemoFeatureBridge` only when integrating the UI with an app or test environment you control.
+## Renderer contract
 
-Avoid placing behavior directly in click listeners. Stable bridge IDs make it possible to unit test business logic separately, change the menu layout later, or provide a different implementation for a debug build.
+`ModernMenuView` renders every tab and section by iterating the profile model. Adding or removing a control therefore changes only the provider. The engine recognizes four control types:
 
-## Data storage
+- `TOGGLE` → `FeatureBridge.onToggleChanged`
+- `SLIDER` → `FeatureBridge.onValueChanged`
+- `PALETTE` → `FeatureBridge.onChoiceChanged`
+- `ACTION` → `FeatureBridge.onAction`
 
-`PreferenceStore` uses one private `SharedPreferences` file. It stores menu values and the bubble position. Restoring defaults preserves position, so a user does not unexpectedly lose where they placed the overlay.
+## Process recreation
+
+Static registration is intentionally avoided. Android can recreate a foreground service without reopening the host activity, so the provider class name is stored in merged manifest metadata. The engine can reconstruct both profile and bridge directly from the application context.
+
+## R8
+
+Provider discovery uses reflection. `menu-core/consumer-rules.pro` keeps every `MenuProvider` implementation and its public no-argument constructor. These rules are automatically included when the host consumes the AAR through Gradle.

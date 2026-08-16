@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nebula_overlay_channel_name">Nebula overlay</string>
+    <string name="nebula_overlay_channel_description">Shows when the Nebula floating menu is active</string>
+    <string name="nebula_overlay_notification_title">Nebula overlay is active</string>
+    <string name="nebula_overlay_notification_text">Tap to open the host app</string>
+</resources>

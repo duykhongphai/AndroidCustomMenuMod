@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "AndroidCustomMenuMod"
 include(":app")
+include(":menu-core")

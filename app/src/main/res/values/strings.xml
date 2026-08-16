@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Nebula Menu</string>
-    <string name="overlay_channel_name">Nebula overlay</string>
-    <string name="overlay_notification_title">Nebula overlay is active</string>
-    <string name="overlay_notification_text">Tap to open the control app</string>
     <string name="status_active">● ACTIVE</string>
     <string name="status_ready">READY</string>
     <string name="status_access_needed">ACCESS NEEDED</string>

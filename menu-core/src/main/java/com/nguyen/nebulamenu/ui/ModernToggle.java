@@ -1,4 +1,4 @@
-package com.nguyen.androidcustommenumod.ui;
+package com.nguyen.nebulamenu.ui;
 
 import android.animation.ValueAnimator;
 import android.content.Context;

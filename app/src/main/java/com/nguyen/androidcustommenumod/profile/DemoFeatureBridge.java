@@ -1,6 +1,8 @@
-package com.nguyen.androidcustommenumod.bridge;
+package com.nguyen.androidcustommenumod.profile;
 
 import android.util.Log;
+
+import com.nguyen.nebulamenu.bridge.FeatureBridge;
 
 /** A harmless bridge used by the sample app. It only writes events to Logcat. */
 public final class DemoFeatureBridge implements FeatureBridge {
@@ -14,6 +16,11 @@ public final class DemoFeatureBridge implements FeatureBridge {
     @Override
     public void onValueChanged(String featureId, float value) {
         Log.i(TAG, featureId + " = " + value);
+    }
+
+    @Override
+    public void onChoiceChanged(String featureId, String optionId) {
+        Log.i(TAG, featureId + " = " + optionId);
     }
 
     @Override
