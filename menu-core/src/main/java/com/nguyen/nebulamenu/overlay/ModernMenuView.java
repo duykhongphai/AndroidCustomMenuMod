@@ -40,7 +40,6 @@ public final class ModernMenuView extends LinearLayout {
     private final List<TextView> tabViews = new ArrayList<>();
     private final View dragHandle;
     private Runnable collapseListener;
-    private Runnable closeListener;
     private int selectedTab;
 
     public ModernMenuView(
@@ -93,10 +92,6 @@ public final class ModernMenuView extends LinearLayout {
         collapseListener = listener;
     }
 
-    public void setOnCloseListener(Runnable listener) {
-        closeListener = listener;
-    }
-
     private View createHeader(Context context) {
         LinearLayout header = Design.horizontal(context);
         header.setPadding(
@@ -133,13 +128,13 @@ public final class ModernMenuView extends LinearLayout {
         });
         header.addView(minimize, minimizeParams);
 
-        TextView close = Design.iconButton(context, "×", "Close overlay");
+        TextView close = Design.iconButton(context, "×", "Collapse menu");
         LayoutParams closeParams = new LayoutParams(Design.dp(context, 36), Design.dp(context, 36));
         closeParams.setMargins(Design.dp(context, 6), 0, 0, 0);
         close.setTextColor(Design.DANGER);
         close.setOnClickListener(view -> {
-            if (closeListener != null) {
-                closeListener.run();
+            if (collapseListener != null) {
+                collapseListener.run();
             }
         });
         header.addView(close, closeParams);

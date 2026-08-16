@@ -1,56 +1,114 @@
-# Apktool compatibility
+# Khả năng tương thích với Apktool
 
-The profile-driven refactor does not prevent an Apktool-based integration for an APK you own or are authorized to modify. The UI remains programmatic Android Views, so most of the engine is ordinary compiled classes rather than layout resources.
+UI engine có thể được nhúng bằng Apktool vào APK bạn sở hữu hoặc được cho phép sửa đổi. Việc chuyển sang kiến trúc profile không làm mất khả năng này.
 
-## Important distinction
+## Apktool làm được gì
 
-Apktool decodes and rebuilds APK resources and DEX bytecode represented as smali. It does not compile Java source and does not directly consume an Android AAR.
+Apktool có thể:
 
-Therefore, building `menu-core-release.aar` is sufficient for a normal Gradle host, but not by itself for an Apktool-only workflow. The engine and the selected provider must already be compiled into code that the final APK can load.
+- Decode và rebuild manifest/resource.
+- Chuyển DEX sang smali và smali trở lại DEX.
+- Giữ lại assets, native library và phần lớn file chưa biết.
 
-## Final APK contract
+Apktool không thể:
 
-For the engine to start, the final APK must contain all of the following:
+- Compile Java source.
+- Dùng trực tiếp AAR như Gradle.
+- Tự merge dependency hoặc consumer ProGuard rules.
+- Giữ nguyên chữ ký APK sau khi rebuild.
 
-- Compiled `com.nguyen.nebulamenu` engine classes.
-- The host's compiled `MenuProvider` and `FeatureBridge` implementation.
-- The `MenuOverlayService` declaration.
-- Overlay, foreground-service, special-use, and notification permissions appropriate to the target Android version.
-- Manifest metadata named `com.nguyen.nebulamenu.MENU_PROVIDER` whose value is the provider's exact class name.
-- A host-controlled startup path that starts `MenuOverlayService` after the user has granted overlay access.
+Vì vậy phải build `menu-core` và `apktool-payload` trước, chuyển `classes.jar` thành DEX bằng D8 rồi chuyển DEX thành smali.
 
-If one part is absent, the app may show the fallback profile, fail to display the overlay, or be stopped by Android.
+## Hợp đồng bắt buộc của APK cuối
 
-## Why the engine remains portable
+APK sau khi rebuild phải có đủ:
 
-- It has no third-party runtime dependencies.
-- Menu layouts are created programmatically.
-- Engine and payload code do not reference host `R` values.
-- Profile content is ordinary Java model construction.
-- Provider selection is a single manifest metadata value.
-- Resource names use the `nebula_` prefix to reduce collisions.
+- Các class đã compile trong package `com.nguyen.nebulamenu`.
+- Các class payload trong package `com.nguyen.nebulapayload`.
+- `StandaloneMenuProvider` và `StandaloneFeatureBridge`.
+- `NebulaPermissionActivity`.
+- `MenuOverlayService`.
+- Metadata `com.nguyen.nebulamenu.MENU_PROVIDER` trỏ tới đúng provider.
+- Quyền overlay, foreground service, special-use và notification.
+- Một lời gọi `NebulaBootstrap.launch(Context)` từ điểm khởi động do bạn kiểm soát.
 
-## Common limitations
+Thiếu một thành phần có thể dẫn tới:
 
-- Rebuilding changes the APK signature. Apps that verify their own signature or package integrity may reject the rebuilt APK.
-- DEX and smali merging must preserve class names and method references across multidex files.
-- Resource identifiers can change during a rebuild and must be resolved by the build tool correctly.
-- Android foreground-service and overlay policies vary by OS and target SDK.
-- R8 keep rules from the AAR do not automatically help a manual Apktool workflow; the provider class name must remain exact.
-- Vendor protections, anti-tamper systems, and online-service rules are outside the UI engine and are not bypassed by it.
+- Chỉ hiện profile dự phòng.
+- Không mở trang cấp quyền.
+- Không khởi động foreground service.
+- Không xuất hiện bubble.
+- Crash do không tìm thấy class.
 
-For software you control, integrating the AAR at source level is more reliable than modifying the finished APK. Apktool should be reserved for authorized compatibility testing or environments where the original source build is unavailable.
+## Vì sao payload ít xung đột
 
-## Standalone payload
+- Không có thư viện runtime bên thứ ba.
+- Giao diện được tạo bằng code.
+- Logo được vẽ bằng Canvas.
+- Engine và payload không tham chiếu `R` của app host.
+- Tên resource riêng của engine đã được loại bỏ khỏi payload thủ công.
+- Provider được chọn bằng một metadata duy nhất.
+- Payload có thể đặt trong một multidex folder mới.
 
-`apktool-payload` provides a ready-to-compile compatibility payload. A validated build flow is:
+## Phiên bản Android
 
-1. Build `menu-core` and `apktool-payload` release AARs.
-2. Compile both `classes.jar` files to one DEX with D8.
-3. Disassemble that DEX with baksmali.
-4. Place the resulting engine/payload smali in a new multidex folder.
-5. Merge the permissions, provider metadata, permission activity, and service declarations.
-6. Call `NebulaBootstrap.launch(Context)` from an authorized host startup point.
-7. Rebuild, zipalign, and sign with an appropriate test or release key.
+- Engine compile với min SDK 21.
+- `NebulaBootstrap` không chạy overlay trên API thấp hơn 23 vì Android chưa có luồng `Settings.canDrawOverlays` hiện đại.
+- Từ API 23 trở lên, lần chạy đầu mở trang “Hiển thị trên ứng dụng khác”.
+- Từ API 26 trở lên, bootstrap dùng `startForegroundService`.
+- APK target SDK mới cần khai báo foreground service type `specialUse` và permission tương ứng.
 
-This workflow only supplies the overlay UI. It does not add host-specific feature behavior.
+## Giới hạn quan trọng
+
+### Chữ ký
+
+Rebuild làm mất chữ ký gốc. Nếu điện thoại đang cài APK cùng package nhưng ký bằng key khác, Android báo `INSTALL_FAILED_UPDATE_INCOMPATIBLE`.
+
+Giải pháp hợp lệ:
+
+- Ký bằng đúng release key của ứng dụng bạn sở hữu; hoặc
+- Gỡ bản đang cài rồi cài bản test.
+
+Test key trong `APK_Toolkit_by_0xd00d` chỉ phù hợp kiểm thử cục bộ.
+
+### Kiểm tra integrity
+
+Ứng dụng tự kiểm tra signature, checksum hoặc file DEX có thể từ chối APK đã rebuild. UI engine không bypass các cơ chế đó.
+
+### Multidex
+
+Phải chọn một folder mới như `smali_classes3`, `smali_classes4` dựa trên số DEX hiện có. Không copy payload đè vào package/class đã tồn tại.
+
+### Resource
+
+Payload hiện tại không tham chiếu resource của host nên không cần merge `public.xml` hoặc sửa ID. Nếu tự thêm XML, PNG hoặc string resource vào payload, bạn phải xử lý resource merge và xung đột tên.
+
+### R8 và obfuscation
+
+Trong Gradle, consumer rules giữ tên provider. Trong workflow Apktool, class provider đã được compile trước và metadata phải dùng đúng tên class trong smali. Không được đổi tên provider sau khi D8/baksmali.
+
+## Nên dùng AAR khi nào
+
+Nếu có source của ứng dụng, nên thêm:
+
+```kotlin
+dependencies {
+    implementation(files("libs/menu-core-release.aar"))
+}
+```
+
+Gradle sẽ xử lý manifest, DEX, resource và R8 an toàn hơn.
+
+Chỉ dùng Apktool khi cần kiểm thử APK đã build hoặc không thể chạy lại build source. Quy trình đầy đủ nằm tại [HUONG_DAN_APKTOOL.md](HUONG_DAN_APKTOOL.md).
+
+## Bảng lỗi nhanh
+
+| Hiện tượng | Nguyên nhân thường gặp | Cách kiểm tra |
+|---|---|---|
+| Không mở trang cấp quyền | Chưa gọi bootstrap | Decompile launcher và tìm `NebulaBootstrap` |
+| Có quyền nhưng không có bubble | Service/permission bị thiếu | Kiểm tra manifest và Logcat |
+| Hiện profile dự phòng | Metadata/provider sai | So sánh class name đầy đủ |
+| `ClassNotFoundException` | Copy thiếu smali hoặc sai multidex | Dùng `apkanalyzer dex packages` |
+| Không cài đè được | Chữ ký khác bản đang cài | Kiểm tra bằng `apksigner verify` |
+| Build lỗi duplicate class | Payload copy đè package đã có | Dùng một folder DEX mới và kiểm tra class |
+| Build lỗi resource | Tự thêm resource có ID/tên xung đột | Giữ payload resource-free |

@@ -1,62 +1,67 @@
 # Nebula Android Menu Engine
 
-Nebula is a profile-driven floating UI engine for Android. The visual system and overlay lifecycle live in the reusable `menu-core` module; each host app supplies only a `MenuProvider` and a `FeatureBridge`.
+Nebula là UI engine menu nổi dành cho Android. Phần giao diện, vòng đời overlay và renderer nằm trong module `menu-core`; mỗi ứng dụng chỉ cần cung cấp một `MenuProvider` để khai báo menu và một `FeatureBridge` để xử lý sự kiện.
 
-The production UI has no Compose, Material Components, networking, analytics, or third-party runtime dependencies.
+Giao diện chạy hoàn toàn bằng Android Views và Canvas, không phụ thuộc Compose, Material Components, mạng, quảng cáo hoặc thư viện UI bên thứ ba.
 
-> Use this project only with apps you own or are explicitly authorized to test. It does not include hooking, memory patching, anti-cheat bypasses, or game-specific modifications.
+> Chỉ sử dụng dự án với ứng dụng bạn sở hữu hoặc được cho phép kiểm thử. Dự án không chứa hook, sửa bộ nhớ, bypass anti-cheat hoặc logic gian lận trong trò chơi.
 
-## What is included
+## Tính năng
 
-- Draggable floating bubble and expandable control center.
-- Dynamic tabs, sections, hero content, metrics, and controls.
-- Toggle, slider, action, and color-palette control types.
-- Custom Canvas toggle, slider, logo, and animated background.
-- Profile-scoped persistent values and a global bubble position.
-- Manifest-discovered `MenuProvider` with a safe fallback profile.
-- Consumer R8 rules that preserve provider implementations.
-- A demo app whose bridge only writes events to Logcat.
+- Bubble nổi có thể kéo và ghi nhớ vị trí.
+- Control center có tab, section, hero, metric và footer động.
+- Bốn loại control: toggle, slider, action và palette màu.
+- Toggle, slider, logo và nền động được vẽ bằng Canvas.
+- Cấu hình được lưu riêng theo `profileId`.
+- Nạp `MenuProvider` từ manifest và tự dùng profile dự phòng nếu cấu hình sai.
+- Có consumer rules cho R8 để giữ nguyên provider được gọi bằng reflection.
+- Có payload riêng, không phụ thuộc resource ID, dành cho kiểm thử bằng Apktool.
+- Hai nút `—` và `×` đều thu gọn menu về bubble; không dừng overlay service.
 
-## Project structure
+## Cấu trúc repository
 
 ```text
 AndroidCustomMenuMod/
-├── apktool-payload/                    # Resource-free standalone payload
-├── menu-core/                         # Reusable Android library
+├── menu-core/                         # UI engine tái sử dụng
 │   └── src/main/java/com/nguyen/nebulamenu/
 │       ├── bridge/FeatureBridge.java
-│       ├── engine/                    # Provider discovery and loading
-│       ├── model/                     # Profile schema
+│       ├── engine/                    # Tìm và nạp MenuProvider
+│       ├── model/                     # MenuProfile, tab, section, control
 │       ├── overlay/                   # Service, WindowManager, renderer
-│       ├── storage/                   # Profile-scoped preferences
-│       └── ui/                        # Visual tokens and custom views
-├── app/                               # Showcase host app
-│   └── src/main/java/com/nguyen/androidcustommenumod/
-│       ├── MainActivity.java
-│       └── profile/
-│           ├── DemoMenuProvider.java  # Edit this to add/remove controls
-│           └── DemoFeatureBridge.java # Handle control events here
+│       ├── storage/                   # SharedPreferences theo profile
+│       └── ui/                        # Design token và custom View
+├── app/                               # Ứng dụng preview
+│   └── src/main/java/com/nguyen/androidcustommenumod/profile/
+│       ├── DemoMenuProvider.java      # Khai báo menu demo
+│       └── DemoFeatureBridge.java     # Nhận sự kiện demo
+├── apktool-payload/                   # Payload độc lập, không dùng host R
+│   └── src/main/java/com/nguyen/nebulapayload/
+│       ├── NebulaBootstrap.java
+│       ├── NebulaPermissionActivity.java
+│       ├── StandaloneMenuProvider.java
+│       └── StandaloneFeatureBridge.java
 └── docs/
     ├── ARCHITECTURE.md
     ├── CUSTOMIZATION.md
     ├── APKTOOL_COMPATIBILITY.md
+    ├── HUONG_DAN_APKTOOL.md
     └── APKTOOL_INJECTION_REPORT.md
 ```
 
-## Add a control
+## Thêm một nút mới
 
-Add a control to a section in `DemoMenuProvider`:
+Thêm control vào [DemoMenuProvider.java](app/src/main/java/com/nguyen/androidcustommenumod/profile/DemoMenuProvider.java):
 
 ```java
 .control(MenuControl.toggle(
         "show_grid",
-        "Layout grid",
-        "Show alignment guides",
+        "Lưới căn chỉnh",
+        "Hiện đường căn chỉnh bố cục",
         false
 ))
 ```
 
-Then handle the same stable ID in the bridge:
+Xử lý cùng ID trong bridge:
 
 ```java
 @Override
@@ -67,13 +72,13 @@ public void onToggleChanged(String featureId, boolean enabled) {
 }
 ```
 
-No edit to `ModernMenuView`, `MenuOverlayController`, or any visual component is required.
+Không cần sửa `ModernMenuView`, `MenuOverlayController` hoặc bất kỳ custom View nào.
 
-See [docs/CUSTOMIZATION.md](docs/CUSTOMIZATION.md) for every control type and multi-profile guidance.
+Đọc [hướng dẫn tùy chỉnh menu](docs/CUSTOMIZATION.md) để xem đầy đủ toggle, slider, action, palette, tab, section, theme và nhiều profile.
 
-## Register a profile
+## Đăng ký profile
 
-The host app points the engine at a provider class through manifest metadata:
+Ứng dụng host khai báo provider trong `AndroidManifest.xml`:
 
 ```xml
 <meta-data
@@ -81,39 +86,60 @@ The host app points the engine at a provider class through manifest metadata:
     android:value="com.example.myapp.MyMenuProvider" />
 ```
 
-The class must have a public no-argument constructor and implement `MenuProvider`. If loading fails, the engine displays a fallback profile instead of crashing.
+Provider phải:
+
+- Có constructor công khai không tham số.
+- Implement `MenuProvider`.
+- Trả về `MenuProfile` và `FeatureBridge` khác `null`.
+- Có tên class khớp chính xác với manifest.
+
+Nếu provider bị thiếu hoặc tạo profile lỗi, engine hiển thị profile dự phòng thay vì làm ứng dụng crash.
 
 ## Build
 
-Open the repository in Android Studio or run:
+Mở repository bằng Android Studio hoặc chạy PowerShell:
 
 ```powershell
+$env:JAVA_HOME = "C:\duong-dan\toi\jdk-21"
 ./gradlew.bat testDebugUnitTest assembleDebug lintDebug
 ./gradlew.bat assembleRelease
 ```
 
-Outputs:
+File đầu ra:
 
-- Demo APK: `app/build/outputs/apk/debug/app-debug.apk`
-- Reusable AAR: `menu-core/build/outputs/aar/menu-core-release.aar`
-- Standalone payload AAR: `apktool-payload/build/outputs/aar/apktool-payload-release.aar`
+- APK demo: `app/build/outputs/apk/debug/app-debug.apk`
+- AAR engine: `menu-core/build/outputs/aar/menu-core-release.aar`
+- AAR payload: `apktool-payload/build/outputs/aar/apktool-payload-release.aar`
 
-Requirements:
+Yêu cầu:
 
 - Android Gradle Plugin 9.3.
 - Gradle 9.7.
-- JDK 17 or newer.
+- JDK 17 trở lên.
 - Android SDK 37.
-- Engine: Android 5.0 (API 21) or newer; overlay permission bootstrap activates on API 23+.
+- Engine hỗ trợ từ Android 5.0, API 21.
+- Luồng cấp quyền overlay hoạt động từ Android 6.0, API 23.
 
-## Apktool compatibility
+## Dùng với Apktool
 
-The engine architecture remains compatible with an Apktool-based workflow for an APK you own, but Apktool cannot consume an AAR or Java source directly. The compiled classes, manifest declarations, and small set of resources must be present in the final APK.
+Kiến trúc engine vẫn hoạt động khi nhúng vào APK bạn sở hữu, nhưng Apktool không đọc trực tiếp Java source hoặc AAR. Cần build engine và payload thành DEX, chuyển DEX thành smali, merge manifest, gọi bootstrap, rebuild, align và ký APK.
 
-Source-level/AAR integration is strongly preferred because Gradle performs manifest, resource, DEX, and R8 merging safely. See [docs/APKTOOL_COMPATIBILITY.md](docs/APKTOOL_COMPATIBILITY.md) for the compatibility contract and limitations.
+Đọc theo thứ tự:
 
-The `apktool-payload` module supplies a resource-free provider, Logcat-only bridge, overlay-permission activity, and bootstrap entry point for authorized Apktool compatibility testing.
+1. [Khả năng tương thích và giới hạn](docs/APKTOOL_COMPATIBILITY.md)
+2. [Hướng dẫn nhúng bằng Apktool từng bước](docs/HUONG_DAN_APKTOOL.md)
+3. [Báo cáo lần nhúng đã kiểm chứng](docs/APKTOOL_INJECTION_REPORT.md)
 
-## License
+Tích hợp AAR tại source luôn đáng tin cậy hơn Apktool vì Gradle tự xử lý manifest, DEX, resource và R8.
 
-MIT — see [LICENSE](LICENSE).
+## Hành vi đóng và dừng menu
+
+- Nút `—`: thu gọn menu về bubble.
+- Nút `×`: cũng thu gọn menu về bubble.
+- Chạm bubble: mở lại menu.
+- Nút `STOP` trong app demo: dừng `MenuOverlayService` hoàn toàn.
+- Ứng dụng host cũng có thể gọi `stopService(new Intent(context, MenuOverlayService.class))`.
+
+## Giấy phép
+
+MIT — xem [LICENSE](LICENSE).

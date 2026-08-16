@@ -95,7 +95,6 @@ public final class MenuOverlayController {
 
         ModernMenuView menu = new ModernMenuView(context, profile, bridge, preferences);
         menu.setOnCollapseListener(() -> showBubble(attachedParams.x, attachedParams.y));
-        menu.setOnCloseListener(() -> context.stopService(new Intent(context, MenuOverlayService.class)));
 
         WindowManager.LayoutParams params = createParams(width, height, menuX, menuY);
         attach(menu, params);

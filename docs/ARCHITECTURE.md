@@ -1,15 +1,15 @@
-# Architecture
+# Kiến trúc UI engine
 
-Nebula separates reusable presentation from app-specific menu definitions and behavior.
+Nebula tách giao diện dùng chung khỏi nội dung menu và hành vi riêng của từng ứng dụng.
 
-## Runtime flow
+## Luồng hoạt động
 
 ```text
-Host application manifest
-    │ MENU_PROVIDER metadata
+AndroidManifest của ứng dụng host
+    │ metadata MENU_PROVIDER
     ▼
 MenuProviderLoader
-    │ creates
+    │ tạo
     ├── MenuProfile ──────────────┐
     └── FeatureBridge             │
                                   ▼
@@ -18,40 +18,29 @@ MenuOverlayService ──► MenuOverlayController
                                   ▼
                            ModernMenuView
                                   │
-                   renders profile and emits events
+                    render profile và phát sự kiện
                                   │
                                   ▼
                            FeatureBridge
 ```
 
-## `menu-core`
+## Module `menu-core`
 
-The Android library owns all stable engine behavior:
+`menu-core` chứa toàn bộ phần ổn định của engine:
 
-- `engine`: discovers the host provider from manifest metadata and supplies a fallback.
-- `model`: immutable profile, tab, section, hero, metric, option, and control definitions.
-- `overlay`: owns the foreground service, `WindowManager`, drag behavior, and dynamic renderer.
-- `storage`: namespaces settings by profile ID and persists the bubble position globally.
-- `ui`: contains design tokens and custom Android Views.
+- `engine`: đọc metadata, tạo provider và cung cấp profile dự phòng.
+- `model`: các model bất biến cho profile, tab, section, hero, metric, option và control.
+- `overlay`: foreground service, `WindowManager`, kéo thả và renderer động.
+- `storage`: lưu giá trị control theo profile và lưu vị trí bubble toàn cục.
+- `ui`: màu sắc, typography, drawable helper và custom View.
 
-`menu-core` does not reference the demo app. Its notification opens the host package's launcher activity dynamically.
+Module không tham chiếu tới app demo hoặc mã nguồn game. Notification tự tìm launcher activity của package host.
 
-The engine also avoids host resource IDs: its notification uses an Android framework icon and internal text constants. This lets compiled engine code move between authorized APK test builds without patching generated `R` references.
+Engine không tham chiếu resource ID của host. Notification dùng icon framework Android và chuỗi nội bộ, vì vậy DEX của engine có thể dùng trong bài kiểm thử Apktool mà không phải sửa hằng số `R`.
 
-## `apktool-payload`
+## Hợp đồng của ứng dụng host
 
-The standalone payload module contains:
-
-- `NebulaBootstrap`: starts the engine or opens the overlay permission flow.
-- `NebulaPermissionActivity`: returns from Android settings and starts the service.
-- `StandaloneMenuProvider`: a safe profile containing UI-only demo controls.
-- `StandaloneFeatureBridge`: writes events to Logcat and does not modify host behavior.
-
-The module deliberately contains no application resources or game-specific code.
-
-## Host contract
-
-A host supplies one class implementing `MenuProvider`:
+Ứng dụng cung cấp một class implement `MenuProvider`:
 
 ```java
 public interface MenuProvider {
@@ -60,21 +49,46 @@ public interface MenuProvider {
 }
 ```
 
-The profile is declarative and immutable after construction. The bridge receives semantic control IDs and is the only place app-specific behavior belongs.
+`MenuProfile` mô tả những gì cần hiển thị. `FeatureBridge` nhận ID và giá trị khi người dùng tương tác. Logic riêng của ứng dụng chỉ được đặt trong bridge hoặc các service/controller do ứng dụng sở hữu.
 
-## Renderer contract
+## Hợp đồng renderer
 
-`ModernMenuView` renders every tab and section by iterating the profile model. Adding or removing a control therefore changes only the provider. The engine recognizes four control types:
+`ModernMenuView` duyệt toàn bộ profile và render theo loại control:
 
-- `TOGGLE` → `FeatureBridge.onToggleChanged`
-- `SLIDER` → `FeatureBridge.onValueChanged`
-- `PALETTE` → `FeatureBridge.onChoiceChanged`
-- `ACTION` → `FeatureBridge.onAction`
+- `TOGGLE` gọi `FeatureBridge.onToggleChanged`.
+- `SLIDER` gọi `FeatureBridge.onValueChanged`.
+- `PALETTE` gọi `FeatureBridge.onChoiceChanged`.
+- `ACTION` gọi `FeatureBridge.onAction`.
 
-## Process recreation
+Do đó thêm hoặc xóa control chỉ thay đổi provider, không làm thay đổi engine.
 
-Static registration is intentionally avoided. Android can recreate a foreground service without reopening the host activity, so the provider class name is stored in merged manifest metadata. The engine can reconstruct both profile and bridge directly from the application context.
+## Vòng đời overlay
+
+`MenuOverlayService` sở hữu một `MenuOverlayController`. Controller chỉ gắn một cửa sổ tại một thời điểm:
+
+- Trạng thái thu gọn: bubble 68 dp.
+- Trạng thái mở: control center responsive.
+- Trạng thái dừng: view được gỡ khỏi `WindowManager`.
+
+Cả nút `—` và `×` đều chuyển từ trạng thái mở sang bubble. Chúng không gọi `stopService`. Việc dừng hoàn toàn phải do ứng dụng host thực hiện rõ ràng.
+
+## Khôi phục process
+
+Engine không dùng đăng ký provider bằng biến static. Android có thể tạo lại foreground service mà không mở lại activity, nên tên provider được lưu trong manifest. Service có thể khôi phục profile trực tiếp từ application context.
 
 ## R8
 
-Provider discovery uses reflection. `menu-core/consumer-rules.pro` keeps every `MenuProvider` implementation and its public no-argument constructor. These rules are automatically included when the host consumes the AAR through Gradle.
+Provider được nạp bằng reflection. `menu-core/consumer-rules.pro` giữ mọi class implement `MenuProvider` và constructor công khai không tham số. Khi dùng AAR qua Gradle, rules này được nhập tự động.
+
+Trong workflow Apktool thủ công, phải giữ nguyên tên class provider trong DEX/smali vì consumer rules không còn tham gia quá trình build host.
+
+## Module `apktool-payload`
+
+Payload độc lập gồm:
+
+- `NebulaBootstrap`: kiểm tra quyền và khởi động engine.
+- `NebulaPermissionActivity`: mở trang cấp quyền overlay rồi quay lại khởi động service.
+- `StandaloneMenuProvider`: profile demo chỉ thao tác trạng thái UI.
+- `StandaloneFeatureBridge`: chỉ ghi sự kiện vào Logcat.
+
+Payload không có resource riêng và không chứa logic game. Khi build cùng `menu-core`, hai `classes.jar` có thể được D8 thành một DEX rồi chuyển sang smali.

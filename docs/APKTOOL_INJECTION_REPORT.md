@@ -1,56 +1,77 @@
-# Apktool injection report
+# Báo cáo nhúng UI engine bằng Apktool
 
-Date: 2026-08-16
+Ngày thực hiện: 16/08/2026
 
-Scope: authorized UI-engine compatibility test against the user's own LibGDX APK. The injected standalone profile only persists UI state and writes bridge events to Logcat.
+Phạm vi: kiểm thử tương thích UI engine trên APK LibGDX do người dùng sở hữu. Profile được nhúng chỉ lưu trạng thái UI và ghi sự kiện vào Logcat; không chứa hook hoặc logic thay đổi trò chơi.
 
-## Inputs
+## APK đầu vào
 
-- APK: `android-release-unsigned.apk`
+```text
+C:\Users\nguye\Documents\GitHub\LibGDXProjects\Hiep250x6 Native\android\build\outputs\apk\release\android-release-unsigned.apk
+```
+
+Thông tin:
+
 - Package: `com.monkey.nso`
 - Launcher: `com.monkey.nso.android.AndroidLauncher`
-- Minimum SDK: 21
+- Min SDK: 21
 - Target SDK: 36
+- Kích thước: 265.210.001 byte
 - Apktool: 2.11.0
-- Payload DEX: 62,288 bytes, 54 smali classes
 
-Original APK SHA-256:
+SHA-256 APK gốc:
 
 ```text
 675008A9A2159F22C0DD537B9102A5436FD777BC1D78897F712B6DA838FD797C
 ```
 
-## Injected contract
+## Payload
 
-- Added payload as `classes3.dex`.
-- Added overlay and foreground-service permissions.
-- Registered `StandaloneMenuProvider` through `MENU_PROVIDER` metadata.
-- Registered `NebulaPermissionActivity` and `MenuOverlayService`.
-- Added a call to `NebulaBootstrap.launch(Context)` immediately after the launcher's superclass `onCreate` call.
-- Left the original APK and source tree unchanged.
+- Build từ `menu-core` và `apktool-payload`.
+- Hai `classes.jar` được compile bằng D8 với `--min-api 21`.
+- DEX payload: 61.748 byte.
+- Số file smali: 53.
+- Package engine: `com.nguyen.nebulamenu`.
+- Package payload: `com.nguyen.nebulapayload`.
+- Không có tham chiếu tới `R` của APK host.
 
-## Output
+## Thay đổi đã nhúng
+
+- Thêm payload dưới dạng `classes3.dex`.
+- Thêm quyền overlay và foreground service.
+- Đăng ký `StandaloneMenuProvider` bằng metadata `MENU_PROVIDER`.
+- Đăng ký `NebulaPermissionActivity`.
+- Đăng ký `MenuOverlayService` với type `specialUse`.
+- Thêm lời gọi `NebulaBootstrap.launch(Context)` ngay sau `super.onCreate` của launcher.
+- Giữ nguyên APK gốc và toàn bộ source game.
+- Nút `—` và `×` đều thu gọn menu về bubble.
+
+## APK đầu ra hiện tại
 
 ```text
-D:\APK_Toolkit_by_0xd00d\2 - Compiled\Hiep250x6-Nebula-UIEngine-v2-signed.apk
+D:\APK_Toolkit_by_0xd00d\2 - Compiled\Hiep250x6-Nebula-UIEngine-v3-signed.apk
 ```
 
-Final APK SHA-256:
+SHA-256:
 
 ```text
-4CD8CE82194095339A18341A7D62C2816419B3AEF5C5CDF1B0564F8D5ADA6167
+60D4081AC1851F0E665A668010F3830FDF7B6FBBA1BFDCEDDA8F47188C6D944D
 ```
 
-Final size: 266,241,124 bytes.
+Kích thước: 266.241.124 byte.
 
-## Verification
+## Kết quả xác minh
 
-- Apktool rebuild: passed.
-- Zipalign verification: passed.
-- APK signature verification: v1, v2, and v3 passed.
-- Package/minimum SDK/target SDK preserved.
-- Provider, bootstrap, permission activity, service, and menu renderer found in final DEX files.
-- Launcher bootstrap call found in the final APK's decompiled bytecode.
-- Runtime device test: not run because no ADB device or emulator was connected.
+- Apktool rebuild: đạt.
+- Zipalign: đạt.
+- Chữ ký APK v1: đạt.
+- Chữ ký APK v2: đạt.
+- Chữ ký APK v3: đạt.
+- Package/min SDK/target SDK: giữ nguyên.
+- Provider, bootstrap, activity cấp quyền, service và renderer: tìm thấy trong DEX cuối.
+- Lời gọi bootstrap: tìm thấy trong bytecode launcher của APK cuối.
+- Lint `app`, `menu-core`, `apktool-payload`: 0 issue.
+- Unit test model: 3 test đạt, 0 failure.
+- Kiểm thử trên thiết bị: chưa thực hiện vì không có thiết bị/emulator ADB kết nối.
 
-The APK is signed with the toolkit test certificate. It is suitable for local testing but is not a production release signature.
+APK được ký bằng test certificate của toolkit. Certificate này chỉ phù hợp kiểm thử cục bộ, không phải chữ ký phát hành chính thức.
