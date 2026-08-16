@@ -57,6 +57,7 @@ Thiếu một thành phần có thể dẫn tới:
 - Từ API 23 trở lên, lần chạy đầu mở trang “Hiển thị trên ứng dụng khác”.
 - Từ API 26 trở lên, bootstrap dùng `startForegroundService`.
 - APK target SDK mới cần khai báo foreground service type `specialUse` và permission tương ứng.
+- Service dùng `stopWithTask=true` và `START_NOT_STICKY`, nên biến mất khi task host bị xóa và không tự khởi động lại.
 
 ## Giới hạn quan trọng
 

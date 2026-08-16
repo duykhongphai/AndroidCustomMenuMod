@@ -211,7 +211,7 @@ Thêm vào bên trong `<application>`:
     android:name="com.nguyen.nebulamenu.overlay.MenuOverlayService"
     android:exported="false"
     android:foregroundServiceType="specialUse"
-    android:stopWithTask="false">
+    android:stopWithTask="true">
     <property
         android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
         android:value="User-initiated customizable overlay for an app owned by the user" />
@@ -331,6 +331,7 @@ Kiểm tra lời gọi trong launcher:
 6. Bubble Nebula xuất hiện.
 7. Chạm bubble để mở menu.
 8. Chạm `—` hoặc `×` để thu gọn về bubble.
+9. Vuốt ứng dụng khỏi Recent Apps để kiểm tra bubble và service cùng biến mất.
 
 Nếu thiết bị/OEM không quay lại activity đúng cách, đóng và mở lại ứng dụng sau khi đã cấp quyền.
 

@@ -70,7 +70,14 @@ Do đó thêm hoặc xóa control chỉ thay đổi provider, không làm thay �
 - Trạng thái mở: control center responsive.
 - Trạng thái dừng: view được gỡ khỏi `WindowManager`.
 
-Cả nút `—` và `×` đều chuyển từ trạng thái mở sang bubble. Chúng không gọi `stopService`. Việc dừng hoàn toàn phải do ứng dụng host thực hiện rõ ràng.
+Cả nút `—` và `×` đều chuyển từ trạng thái mở sang bubble. Chúng không gọi `stopService`.
+
+Service được khai báo `android:stopWithTask="true"` và trả về `START_NOT_STICKY`:
+
+- Vuốt task khỏi Recent Apps sẽ dừng service và gỡ bubble.
+- Process bị hệ thống dừng sẽ không làm service tự khởi động lại.
+- Nhấn Home không xóa task, vì vậy bubble vẫn tồn tại khi ứng dụng chỉ chạy nền.
+- Ứng dụng host vẫn có thể gọi `stopService` để dừng chủ động.
 
 ## Khôi phục process
 

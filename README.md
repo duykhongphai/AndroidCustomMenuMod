@@ -139,6 +139,9 @@ Tích hợp AAR tại source luôn đáng tin cậy hơn Apktool vì Gradle tự
 - Chạm bubble: mở lại menu.
 - Nút `STOP` trong app demo: dừng `MenuOverlayService` hoàn toàn.
 - Ứng dụng host cũng có thể gọi `stopService(new Intent(context, MenuOverlayService.class))`.
+- Vuốt ứng dụng khỏi Recent Apps: Android dừng service và bubble cùng task.
+- Service dùng `START_NOT_STICKY`, nên không tự sống lại sau khi process bị hệ thống dừng.
+- Nhấn Home chỉ đưa ứng dụng xuống nền, task chưa bị xóa nên bubble vẫn tồn tại.
 
 ## Giấy phép
 

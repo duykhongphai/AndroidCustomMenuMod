@@ -274,7 +274,9 @@ Hiện tại:
 - `—` gọi callback thu gọn.
 - `×` cũng gọi callback thu gọn.
 - Bubble vẫn tồn tại và có thể mở lại menu.
-- Service chỉ dừng khi ứng dụng host gọi `stopService`.
+- Vuốt ứng dụng khỏi Recent Apps sẽ dừng service vì `stopWithTask=true`.
+- Service không tự khởi động lại vì dùng `START_NOT_STICKY`.
+- Ứng dụng host vẫn có thể dừng ngay bằng `stopService`.
 
 Nếu muốn đổi icon nhưng giữ hành vi, sửa glyph trong `ModernMenuView.createHeader` và không thay callback.
 

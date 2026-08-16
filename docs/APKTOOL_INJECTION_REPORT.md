@@ -42,20 +42,22 @@ SHA-256 APK gốc:
 - Đăng ký `StandaloneMenuProvider` bằng metadata `MENU_PROVIDER`.
 - Đăng ký `NebulaPermissionActivity`.
 - Đăng ký `MenuOverlayService` với type `specialUse`.
+- Service bám theo task bằng `stopWithTask=true` và `START_NOT_STICKY`.
 - Thêm lời gọi `NebulaBootstrap.launch(Context)` ngay sau `super.onCreate` của launcher.
 - Giữ nguyên APK gốc và toàn bộ source game.
 - Nút `—` và `×` đều thu gọn menu về bubble.
+- Vuốt game khỏi Recent Apps sẽ dừng service và xóa bubble.
 
 ## APK đầu ra hiện tại
 
 ```text
-D:\APK_Toolkit_by_0xd00d\2 - Compiled\Hiep250x6-Nebula-UIEngine-v3-signed.apk
+D:\APK_Toolkit_by_0xd00d\2 - Compiled\Hiep250x6-Nebula-UIEngine-v4-signed.apk
 ```
 
 SHA-256:
 
 ```text
-60D4081AC1851F0E665A668010F3830FDF7B6FBBA1BFDCEDDA8F47188C6D944D
+67005B306D61A22EFDE592E3D57FA2B2D4E04C7D8CDD2379C27062F5CF90645E
 ```
 
 Kích thước: 266.241.124 byte.
@@ -70,6 +72,8 @@ Kích thước: 266.241.124 byte.
 - Package/min SDK/target SDK: giữ nguyên.
 - Provider, bootstrap, activity cấp quyền, service và renderer: tìm thấy trong DEX cuối.
 - Lời gọi bootstrap: tìm thấy trong bytecode launcher của APK cuối.
+- Manifest APK cuối xác nhận `android:stopWithTask="true"`.
+- Bytecode APK cuối xác nhận `onStartCommand` trả về `START_NOT_STICKY` (`2`).
 - Lint `app`, `menu-core`, `apktool-payload`: 0 issue.
 - Unit test model: 3 test đạt, 0 failure.
 - Kiểm thử trên thiết bị: chưa thực hiện vì không có thiết bị/emulator ADB kết nối.
