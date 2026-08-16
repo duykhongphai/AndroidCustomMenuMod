@@ -1,68 +1,128 @@
 #include <android/log.h>
 #include <jni.h>
-#include <string>
-#include "menufreefire_features.h"
 
-#define LOG_TAG "OnyxBridge"
-#define LOGI(...) __android_log_print(ANDROID_LOG_INFO, LOG_TAG, __VA_ARGS__)
+#include <string>
+
+#include "native_state.h"
+#include "owned_offset_lab.h"
 
 namespace {
+
+constexpr char kLogTag[] = "OnyxNativeDemo";
+
 class UtfChars final {
-    JNIEnv* env_;
-    jstring str_;
-    const char* chars_ = nullptr;
 public:
-    UtfChars(JNIEnv* env, jstring str) : env_(env), str_(str) {
-        if (str) chars_ = env->GetStringUTFChars(str, nullptr);
+    UtfChars(JNIEnv* environment, jstring value)
+        : environment_(environment), value_(value) {
+        if (value_ != nullptr) {
+            characters_ = environment_->GetStringUTFChars(value_, nullptr);
+        }
     }
-    ~UtfChars() { if (chars_) env_->ReleaseStringUTFChars(str_, chars_); }
-    std::string value() const { return chars_ ? std::string(chars_) : std::string(); }
+
+    ~UtfChars() {
+        if (characters_ != nullptr) {
+            environment_->ReleaseStringUTFChars(value_, characters_);
+        }
+    }
+
+    UtfChars(const UtfChars&) = delete;
+    UtfChars& operator=(const UtfChars&) = delete;
+
+    [[nodiscard]] std::string value() const {
+        return characters_ == nullptr ? std::string() : std::string(characters_);
+    }
+
+private:
+    JNIEnv* environment_;
+    jstring value_;
+    const char* characters_ = nullptr;
 };
-} // namespace
 
-extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void*) {
-    LOGI("JNI_OnLoad called");
-    onyx::menufreefire::features::setJavaVM(vm);
-    return JNI_VERSION_1_6;
+void logSnapshot() {
+    const std::string snapshot = onyx::demo::nativeState().snapshot();
+    __android_log_print(ANDROID_LOG_INFO, kLogTag, "%s", snapshot.c_str());
 }
+
+}  // namespace
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_nguyen_onyxpayload_nativebridge_MenuFreeFireRuntime_nativeInitializeHack(
-        JNIEnv* env,
-        jclass,
-        jlong il2cppBase
-) {
-    onyx::menufreefire::features::initializeHack((uintptr_t)il2cppBase);
-}
-
-extern "C" JNIEXPORT void JNICALL
-Java_com_nguyen_onyxpayload_nativebridge_MenuFreeFireRuntime_nativeRegisterCallback(
-        JNIEnv* env,
-        jclass,
-        jobject obj
-) {
-    onyx::menufreefire::features::registerCallback(env, obj);
-}
-
-extern "C" JNIEXPORT void JNICALL
-Java_com_nguyen_onyxpayload_nativebridge_MenuFreeFireRuntime_nativeSetScreenSize(
-        JNIEnv*,
-        jclass,
-        jint width,
-        jint height
-) {
-    onyx::menufreefire::features::setScreenSize(width, height);
-}
-
-extern "C" JNIEXPORT jboolean JNICALL
-Java_com_nguyen_onyxpayload_nativebridge_MenuFreeFireRuntime_nativeSetToggle(
-        JNIEnv* env,
+Java_com_nguyen_onyxmenu_demo_nativebridge_NativeDemoRuntime_nativeSetToggle(
+        JNIEnv* environment,
         jclass,
         jstring featureId,
         jboolean enabled
 ) {
-    // Implement logic to call appropriate toggle functions based on featureId
-    // For now, we just log and return true
-    LOGI("Toggle %s = %d", UtfChars(env, featureId).value().c_str(), enabled);
-    return JNI_TRUE;
+    onyx::demo::nativeState().setToggle(
+            UtfChars(environment, featureId).value(),
+            enabled == JNI_TRUE
+    );
+    logSnapshot();
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_nguyen_onyxmenu_demo_nativebridge_NativeDemoRuntime_nativeSetValue(
+        JNIEnv* environment,
+        jclass,
+        jstring featureId,
+        jfloat value
+) {
+    onyx::demo::nativeState().setValue(UtfChars(environment, featureId).value(), value);
+    logSnapshot();
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_nguyen_onyxmenu_demo_nativebridge_NativeDemoRuntime_nativeSetChoice(
+        JNIEnv* environment,
+        jclass,
+        jstring featureId,
+        jstring optionId
+) {
+    onyx::demo::nativeState().setChoice(
+            UtfChars(environment, featureId).value(),
+            UtfChars(environment, optionId).value()
+    );
+    logSnapshot();
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_nguyen_onyxmenu_demo_nativebridge_NativeDemoRuntime_nativePerformAction(
+        JNIEnv* environment,
+        jclass,
+        jstring actionId
+) {
+    onyx::demo::nativeState().performAction(UtfChars(environment, actionId).value());
+    logSnapshot();
+}
+
+extern "C" JNIEXPORT void JNICALL
+Java_com_nguyen_onyxmenu_demo_nativebridge_NativeDemoRuntime_nativeReset(
+        JNIEnv*,
+        jclass
+) {
+    onyx::demo::nativeState().reset();
+    logSnapshot();
+}
+
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_nguyen_onyxmenu_demo_nativebridge_NativeDemoRuntime_nativeSnapshot(
+        JNIEnv* environment,
+        jclass
+) {
+    const std::string snapshot = onyx::demo::nativeState().snapshot();
+    return environment->NewStringUTF(snapshot.c_str());
+}
+
+extern "C" JNIEXPORT jstring JNICALL
+Java_com_nguyen_onyxmenu_demo_nativebridge_NativeDemoRuntime_nativeRunOwnedOffsetLab(
+        JNIEnv* environment,
+        jclass
+) {
+    const std::string report = onyx::demo::runOwnedOffsetLab();
+    __android_log_print(ANDROID_LOG_INFO, kLogTag, "offset lab: %s", report.c_str());
+    return environment->NewStringUTF(report.c_str());
+}
+
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM*, void*) {
+    __android_log_print(ANDROID_LOG_INFO, kLogTag, "libonyx_demo_native loaded");
+    return JNI_VERSION_1_6;
 }
