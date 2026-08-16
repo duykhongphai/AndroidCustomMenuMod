@@ -2,10 +2,12 @@ package com.nguyen.onyxpayload;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 import com.nguyen.onyxmenu.model.MenuControl;
 import com.nguyen.onyxmenu.model.MenuProfile;
 import com.nguyen.onyxmenu.model.MenuSection;
+import com.nguyen.onyxmenu.model.MenuTab;
 
 import org.junit.Test;
 
@@ -15,16 +17,26 @@ import java.util.List;
 
 public final class MenuFreeFireProviderTest {
     @Test
-    public void definesExactlyNineDisabledUiToggles() {
+    public void definesGroupedUiOnlyControls() {
         MenuProfile profile = new MenuFreeFireProvider().createProfile(null);
         List<MenuControl> controls = new ArrayList<>();
-        for (MenuSection section : profile.getTabs().get(0).getSections()) {
-            controls.addAll(section.getControls());
+        for (MenuTab tab : profile.getTabs()) {
+            for (MenuSection section : tab.getSections()) {
+                controls.addAll(section.getControls());
+            }
         }
 
         assertEquals("menufreefire", profile.getId());
         assertEquals("MENUFREEFIRE", profile.getTitle());
-        assertEquals(9, controls.size());
+        assertEquals(
+                Arrays.asList("ESP", "AIMBOT", "XOAY"),
+                Arrays.asList(
+                        profile.getTabs().get(0).getLabel(),
+                        profile.getTabs().get(1).getLabel(),
+                        profile.getTabs().get(2).getLabel()
+                )
+        );
+        assertEquals(11, controls.size());
         assertEquals(
                 Arrays.asList(
                         "Bật ESP",
@@ -35,14 +47,28 @@ public final class MenuFreeFireProviderTest {
                         "Bỏ qua Knock",
                         "Aim Silent",
                         "Aim Legit",
-                        "Hỗ trợ kéo tâm"
+                        "Hỗ trợ kéo tâm",
+                        "Xoay",
+                        "Tốc độ xoay"
                 ),
                 titlesOf(controls)
         );
+
+        int toggleCount = 0;
         for (MenuControl control : controls) {
-            assertEquals(MenuControl.Type.TOGGLE, control.getType());
-            assertFalse(control.isDefaultEnabled());
+            if (control.getType() == MenuControl.Type.TOGGLE) {
+                toggleCount++;
+                assertFalse(control.isDefaultEnabled());
+            }
         }
+        assertEquals(10, toggleCount);
+
+        MenuControl rotationSpeed = findById(controls, "rotation_speed");
+        assertNotNull(rotationSpeed);
+        assertEquals(MenuControl.Type.SLIDER, rotationSpeed.getType());
+        assertEquals(1f, rotationSpeed.getMinimum(), 0f);
+        assertEquals(10f, rotationSpeed.getMaximum(), 0f);
+        assertEquals(5f, rotationSpeed.getDefaultValue(), 0f);
     }
 
     private static List<String> titlesOf(List<MenuControl> controls) {
@@ -51,5 +77,14 @@ public final class MenuFreeFireProviderTest {
             titles.add(control.getTitle());
         }
         return titles;
+    }
+
+    private static MenuControl findById(List<MenuControl> controls, String id) {
+        for (MenuControl control : controls) {
+            if (id.equals(control.getId())) {
+                return control;
+            }
+        }
+        return null;
     }
 }

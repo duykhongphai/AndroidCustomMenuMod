@@ -51,7 +51,7 @@ AndroidCustomMenuMod/
 
 ## Profile `menufreefire`
 
-App preview và payload Apktool đang chọn `MenuFreeFireProvider`. Profile này chỉ có 9 toggle giao diện, mặc định đều tắt và được lưu bằng `SharedPreferences`; `FeatureBridge` của profile là no-op nên không chứa hook hoặc logic tác động trò chơi.
+App preview và payload Apktool đang chọn `MenuFreeFireProvider`. Profile được chia thành ba nhóm `ESP`, `AIMBOT`, `XOAY`, có 10 toggle và một slider tốc độ xoay từ 1–10. Các toggle mặc định đều tắt, giá trị được lưu bằng `SharedPreferences`; `FeatureBridge` của profile là no-op nên không chứa hook hoặc logic tác động trò chơi.
 
 Muốn quay lại profile demo tổng quát, đổi metadata `MENU_PROVIDER` thành `com.nguyen.onyxpayload.StandaloneMenuProvider`.
 

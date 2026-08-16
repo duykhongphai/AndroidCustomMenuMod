@@ -29,7 +29,7 @@ SHA-256 APK gốc:
 
 - Build từ `onyx-core` và `apktool-payload`.
 - Hai `classes.jar` được compile bằng D8 với `--min-api 21`.
-- DEX payload: 62.700 byte.
+- DEX payload: 63.144 byte.
 - Số file smali: 54.
 - Package engine: `com.nguyen.onyxmenu`.
 - Package payload: `com.nguyen.onyxpayload`.
@@ -53,13 +53,13 @@ SHA-256 APK gốc:
 ## APK đầu ra hiện tại
 
 ```text
-D:\APK_Toolkit_by_0xd00d\2 - Compiled\Hiep250x6-Onyx-menufreefire-v7-signed.apk
+D:\APK_Toolkit_by_0xd00d\2 - Compiled\Hiep250x6-Onyx-menufreefire-v8-signed.apk
 ```
 
 SHA-256:
 
 ```text
-19595FA88D6AAB04C74FD87D30DD8FB3E6897E0C48664DF9C6D718D71EC4999E
+42A528D5BDF5D0335BC157A16A7C50CE542369DBE027787D9458CF1D35DBD57F
 ```
 
 Kích thước: 266.241.124 byte.
@@ -67,10 +67,10 @@ Kích thước: 266.241.124 byte.
 APK preview độc lập để kiểm tra giao diện nhanh:
 
 ```text
-D:\APK_Toolkit_by_0xd00d\2 - Compiled\Onyx-menufreefire-preview-debug.apk
+D:\APK_Toolkit_by_0xd00d\2 - Compiled\Onyx-menufreefire-preview-v8-debug.apk
 ```
 
-SHA-256 preview: `25F214316F636984A8A1BF362E1F8D6354F1F0EC669CD7486553CF91B243B918`.
+SHA-256 preview: `9D752CD43913BF8FB30E02B2EB5D1ECABBC162266B54EA16CD8B56DBC8E77A38`.
 
 ## Kết quả xác minh
 
@@ -81,7 +81,7 @@ SHA-256 preview: `25F214316F636984A8A1BF362E1F8D6354F1F0EC669CD7486553CF91B243B9
 - Chữ ký APK v3: đạt.
 - Package/min SDK/target SDK: giữ nguyên.
 - Provider, bootstrap, activity cấp quyền, service và renderer: tìm thấy trong DEX cuối.
-- DEX cuối có đúng 9 nhãn toggle của profile `menufreefire`; bridge chỉ chuyển tiếp tới default no-op và không gọi Log/native.
+- DEX cuối có ba nhóm `ESP`, `AIMBOT`, `XOAY`, đúng 10 toggle và một slider `Tốc độ xoay` với min/max/default là 1/10/5; bridge chỉ chuyển tiếp tới default no-op và không gọi Log/native.
 - Lời gọi bootstrap: tìm thấy trong bytecode launcher của APK cuối.
 - Manifest APK cuối xác nhận `android:stopWithTask="true"`.
 - Bytecode APK cuối xác nhận `onStartCommand` trả về `START_NOT_STICKY` (`2`).
