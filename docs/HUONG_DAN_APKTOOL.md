@@ -160,6 +160,25 @@ Copy-Item -LiteralPath "$smaliOut\com" -Destination $payloadSmaliDestination -Re
 
 Không copy vào folder có class trùng tên.
 
+### 7.1. Chép native library của payload
+
+`MenuFreeFireFeatureBridge` cần `libonyx_menufreefire.so` tương ứng với ABI của APK host. Giải nén thư mục `jni` từ AAR payload và chép từng ABI vào `lib` của thư mục đã decode:
+
+```powershell
+$nativeWork = "$payloadWork\native"
+& $sevenZip x $payloadAar "jni\*" "-o$nativeWork" -y
+
+Get-ChildItem "$nativeWork\jni" -Directory | ForEach-Object {
+    $destination = Join-Path "$decoded\lib" $_.Name
+    New-Item -ItemType Directory -Path $destination -Force | Out-Null
+    Copy-Item -Path "$($_.FullName)\*" -Destination $destination -Force
+}
+
+Get-ChildItem "$decoded\lib" -Filter "libonyx_menufreefire.so" -Recurse
+```
+
+Chỉ giữ các ABI mà APK host thực sự phân phối. Với APK split theo ABI, native library phải nằm trong split tương ứng thay vì APK base.
+
 ## 8. Tìm launcher activity
 
 Có thể dùng `apkanalyzer`:
@@ -343,7 +362,7 @@ Sửa:
 apktool-payload/src/main/java/com/nguyen/onyxpayload/MenuFreeFireProvider.java
 ```
 
-Profile này dùng bridge no-op và chỉ phục vụ kiểm tra giao diện. Nếu cần bridge mẫu ghi Logcat, xem `StandaloneFeatureBridge.java`.
+Profile này dùng `MenuFreeFireFeatureBridge` để chuyển control qua JNI tới trạng thái cấu hình C++ trong cùng tiến trình. Khi đổi hoặc thêm ID control, phải cập nhật đồng thời `MenuFreeFireFeatureBridge.java` và `src/main/cpp/menufreefire_state.cpp`.
 
 Sau đó lặp lại từ bước build AAR, D8 và baksmali. Không chỉ rebuild thư mục Apktool cũ vì smali payload sẽ không tự cập nhật từ Java source.
 
@@ -369,7 +388,9 @@ Kiểm tra:
 - Service tồn tại trong manifest.
 - Foreground-service permissions đầy đủ.
 - Launcher thật sự gọi bootstrap.
-- Logcat tag `OnyxMenuEngine`. Profile `menufreefire` không ghi sự kiện toggle vì bridge là no-op.
+- Logcat tag `OnyxMenuEngine` để kiểm tra việc nạp profile.
+- Logcat tag `OnyxMenuFreeFire` để kiểm tra việc nạp `.so`, ID bị từ chối và snapshot native.
+- `lib/<abi>/libonyx_menufreefire.so` tồn tại trong APK đã build.
 
 ### Apktool build lỗi duplicate class
 

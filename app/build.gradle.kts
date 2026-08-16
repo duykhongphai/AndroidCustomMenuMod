@@ -12,6 +12,16 @@ android {
         targetSdk = 37
         versionCode = 1
         versionName = "1.0.0"
+
+        ndk {
+            abiFilters += setOf("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
+        }
+
+        externalNativeBuild {
+            ndkBuild {
+                arguments += "NDK_APPLICATION_MK:=src/main/cpp/Application.mk"
+            }
+        }
     }
 
     buildTypes {
@@ -30,6 +40,14 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    ndkVersion = "27.2.12479018"
+
+    externalNativeBuild {
+        ndkBuild {
+            path = file("src/main/cpp/Android.mk")
+        }
+    }
+
     lint {
         abortOnError = true
         checkReleaseBuilds = true
@@ -38,5 +56,4 @@ android {
 
 dependencies {
     implementation(project(":onyx-core"))
-    implementation(project(":apktool-payload"))
 }

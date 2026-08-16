@@ -17,7 +17,7 @@ import java.util.List;
 
 public final class MenuFreeFireProviderTest {
     @Test
-    public void definesGroupedUiOnlyControls() {
+    public void definesGroupedNativeControls() {
         MenuProfile profile = new MenuFreeFireProvider().createProfile(null);
         List<MenuControl> controls = new ArrayList<>();
         for (MenuTab tab : profile.getTabs()) {
@@ -29,14 +29,15 @@ public final class MenuFreeFireProviderTest {
         assertEquals("menufreefire", profile.getId());
         assertEquals("MENUFREEFIRE", profile.getTitle());
         assertEquals(
-                Arrays.asList("ESP", "AIMBOT", "XOAY"),
+                Arrays.asList("ESP", "AIMBOT", "XOAY", "BYPASS"),
                 Arrays.asList(
                         profile.getTabs().get(0).getLabel(),
                         profile.getTabs().get(1).getLabel(),
-                        profile.getTabs().get(2).getLabel()
+                        profile.getTabs().get(2).getLabel(),
+                        profile.getTabs().get(3).getLabel()
                 )
         );
-        assertEquals(11, controls.size());
+        assertEquals(12, controls.size());
         assertEquals(
                 Arrays.asList(
                         "Bật ESP",
@@ -49,7 +50,8 @@ public final class MenuFreeFireProviderTest {
                         "Aim Legit",
                         "Hỗ trợ kéo tâm",
                         "Xoay",
-                        "Tốc độ xoay"
+                        "Tốc độ xoay",
+                        "Bypass Emulator Detect"
                 ),
                 titlesOf(controls)
         );
@@ -61,7 +63,7 @@ public final class MenuFreeFireProviderTest {
                 assertFalse(control.isDefaultEnabled());
             }
         }
-        assertEquals(10, toggleCount);
+        assertEquals(11, toggleCount);
 
         MenuControl rotationSpeed = findById(controls, "rotation_speed");
         assertNotNull(rotationSpeed);

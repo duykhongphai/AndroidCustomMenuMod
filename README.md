@@ -33,14 +33,20 @@ AndroidCustomMenuMod/
 ├── app/                               # Ứng dụng preview
 │   └── src/main/java/com/nguyen/onyxmenu/demo/profile/
 │       ├── DemoMenuProvider.java      # Khai báo menu demo
-│       └── DemoFeatureBridge.java     # Nhận sự kiện demo
+│       ├── DemoFeatureBridge.java     # Adapter UI → JNI
+│       └── nativebridge/              # Java API của C++ demo state
+│   └── src/main/cpp/                  # JNI + NativeState an toàn
 ├── apktool-payload/                   # Payload độc lập, không dùng host R
-│   └── src/main/java/com/nguyen/onyxpayload/
-│       ├── OnyxBootstrap.java
-│       ├── OnyxPermissionActivity.java
-│       ├── MenuFreeFireProvider.java  # Profile menufreefire chỉ có UI
-│       ├── StandaloneMenuProvider.java
-│       └── StandaloneFeatureBridge.java
+│   └── src/main/
+│       ├── java/com/nguyen/onyxpayload/
+│       │   ├── OnyxBootstrap.java
+│       │   ├── OnyxPermissionActivity.java
+│       │   ├── MenuFreeFireProvider.java  # Profile nối bridge native
+│       │   ├── MenuFreeFireFeatureBridge.java
+│       │   ├── nativebridge/              # Java API của native runtime
+│       │   ├── StandaloneMenuProvider.java
+│       │   └── StandaloneFeatureBridge.java
+│       └── cpp/                       # JNI + trạng thái cấu hình C++
 └── docs/
     ├── ARCHITECTURE.md
     ├── CUSTOMIZATION.md
@@ -49,11 +55,14 @@ AndroidCustomMenuMod/
     └── APKTOOL_INJECTION_REPORT.md
 ```
 
-## Profile `menufreefire`
+## Profile preview và `menufreefire`
 
-App preview và payload Apktool đang chọn `MenuFreeFireProvider`. Profile được chia thành ba nhóm `ESP`, `AIMBOT`, `XOAY`, có 10 toggle và một slider tốc độ xoay từ 1–10. Các toggle mặc định đều tắt, giá trị được lưu bằng `SharedPreferences`; `FeatureBridge` của profile là no-op nên không chứa hook hoặc logic tác động trò chơi.
+App preview chọn `DemoMenuProvider` và minh họa luồng Java → JNI → C++ bằng một native state cục bộ, không hook hoặc truy cập process khác.
 
-Muốn quay lại profile demo tổng quát, đổi metadata `MENU_PROVIDER` thành `com.nguyen.onyxpayload.StandaloneMenuProvider`.
+Payload Apktool chứa `MenuFreeFireProvider` với bốn nhóm `ESP`, `AIMBOT`, `XOAY`, `BYPASS`. `MenuFreeFireFeatureBridge` chuyển 11 công tắc và slider tốc độ qua JNI tới trạng thái C++ có mutex, kiểm tra ID, chặn giá trị 1–10 và snapshot JSON. Toggle `Bypass Emulator Detect` chỉ lưu trạng thái cấu hình, không triển khai bypass thật. Native runtime này chỉ quản lý cấu hình trong tiến trình đã chủ động đóng gói payload; nó không chứa hook, quét bộ nhớ hoặc logic tác động tiến trình khác.
+
+Đọc [demo JNI và native state](docs/JNI_NATIVE_DEMO.md) để xem luồng dữ liệu và giới hạn khi tái sử dụng cho nhiều app.
+Đọc [owned offset lab và bộ helper](docs/CPP_OFFSETS_OWNED_LAB.md) để xem `OwnedMemoryView`, cách `base + offset`, `if/for/while`, array, bit flags và function table hoạt động trên object C++ của chính app.
 
 ## Thêm một nút mới
 
@@ -124,6 +133,7 @@ Yêu cầu:
 - Gradle 9.7.
 - JDK 17 trở lên.
 - Android SDK 37.
+- Android NDK 27.2.12479018 để build module `app` có JNI demo.
 - Engine hỗ trợ từ Android 5.0, API 21.
 - Luồng cấp quyền overlay hoạt động từ Android 6.0, API 23.
 

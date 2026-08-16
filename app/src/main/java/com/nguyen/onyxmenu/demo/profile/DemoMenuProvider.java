@@ -26,7 +26,7 @@ public final class DemoMenuProvider implements MenuProvider {
 
     @Override
     public FeatureBridge createBridge(Context context) {
-        return new DemoFeatureBridge();
+        return new DemoFeatureBridge(context);
     }
 
     private MenuTab createCoreTab() {
@@ -121,7 +121,7 @@ public final class DemoMenuProvider implements MenuProvider {
     private MenuTab createSystemTab() {
         return MenuTab.builder("system", "SYSTEM")
                 .hero(MenuHero.builder("Local profile", "A bridge you can\nreplace safely.")
-                        .description("The included bridge only logs events. Connect it to software you own.")
+                        .description("Controls call Java, JNI and a process-local C++ state.")
                         .build())
                 .section(MenuSection.builder("Behavior")
                         .meta("PREFERENCES")
@@ -147,8 +147,9 @@ public final class DemoMenuProvider implements MenuProvider {
                         ))
                         .build())
                 .section(MenuSection.builder("Bridge actions")
-                        .meta("LOCAL ONLY")
+                        .meta("JNI · C++ · LOCAL ONLY")
                         .control(MenuControl.action("ping_demo_bridge", "PING DEMO BRIDGE"))
+                        .control(MenuControl.action("run_owned_offset_lab", "RUN OWNED OFFSET LAB"))
                         .control(MenuControl.dangerAction("clear_demo_state", "CLEAR DEMO STATE"))
                         .build())
                 .build();

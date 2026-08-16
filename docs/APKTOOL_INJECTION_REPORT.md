@@ -2,7 +2,7 @@
 
 Ngày thực hiện: 16/08/2026
 
-Phạm vi: kiểm thử tương thích UI engine trên APK LibGDX do người dùng sở hữu. Profile được nhúng chỉ lưu trạng thái UI; bridge là no-op, không chứa hook hoặc logic thay đổi trò chơi.
+Phạm vi: kiểm thử tương thích UI engine và native state cục bộ trên APK LibGDX do người dùng sở hữu. Bridge JNI chỉ lưu cấu hình trong tiến trình và xuất snapshot chẩn đoán; toggle `Bypass Emulator Detect` không triển khai bypass thật, payload không chứa hook hoặc logic thay đổi trò chơi.
 
 ## APK đầu vào
 
@@ -29,17 +29,19 @@ SHA-256 APK gốc:
 
 - Build từ `onyx-core` và `apktool-payload`.
 - Hai `classes.jar` được compile bằng D8 với `--min-api 21`.
-- DEX payload: 63.144 byte.
-- Số file smali: 54.
+- DEX payload: 65.504 byte.
+- Số file smali: 55.
 - Package engine: `com.nguyen.onyxmenu`.
 - Package payload: `com.nguyen.onyxpayload`.
 - Profile đang chọn: `menufreefire` qua `MenuFreeFireProvider`.
+- Native runtime: `libonyx_menufreefire.so` cho `arm64-v8a`, `armeabi-v7a`, `x86`, `x86_64`.
 - Không còn package, class hoặc chuỗi thương hiệu cũ trong payload.
 - Không có tham chiếu tới `R` của APK host.
 
 ## Thay đổi đã nhúng
 
 - Thêm payload dưới dạng `classes3.dex`.
+- Thêm native state JNI dưới dạng `libonyx_menufreefire.so` cho bốn ABI của host.
 - Thêm quyền overlay và foreground service.
 - Đăng ký `MenuFreeFireProvider` bằng metadata `MENU_PROVIDER`.
 - Đăng ký `OnyxPermissionActivity`.
@@ -53,24 +55,16 @@ SHA-256 APK gốc:
 ## APK đầu ra hiện tại
 
 ```text
-D:\APK_Toolkit_by_0xd00d\2 - Compiled\Hiep250x6-Onyx-menufreefire-v8-signed.apk
+D:\APK_Toolkit_by_0xd00d\2 - Compiled\Hiep250x6-Onyx-menufreefire-v9-signed.apk
 ```
 
 SHA-256:
 
 ```text
-42A528D5BDF5D0335BC157A16A7C50CE542369DBE027787D9458CF1D35DBD57F
+1EC4D1E27C4F77712F8F4CB23B3BACA41E8E139996A1A0720478036A014B4E18
 ```
 
-Kích thước: 266.241.124 byte.
-
-APK preview độc lập để kiểm tra giao diện nhanh:
-
-```text
-D:\APK_Toolkit_by_0xd00d\2 - Compiled\Onyx-menufreefire-preview-v8-debug.apk
-```
-
-SHA-256 preview: `9D752CD43913BF8FB30E02B2EB5D1ECABBC162266B54EA16CD8B56DBC8E77A38`.
+Kích thước: 267.326.889 byte.
 
 ## Kết quả xác minh
 
@@ -81,7 +75,8 @@ SHA-256 preview: `9D752CD43913BF8FB30E02B2EB5D1ECABBC162266B54EA16CD8B56DBC8E77A
 - Chữ ký APK v3: đạt.
 - Package/min SDK/target SDK: giữ nguyên.
 - Provider, bootstrap, activity cấp quyền, service và renderer: tìm thấy trong DEX cuối.
-- DEX cuối có ba nhóm `ESP`, `AIMBOT`, `XOAY`, đúng 10 toggle và một slider `Tốc độ xoay` với min/max/default là 1/10/5; bridge chỉ chuyển tiếp tới default no-op và không gọi Log/native.
+- DEX cuối có bốn nhóm `ESP`, `AIMBOT`, `XOAY`, `BYPASS`, đúng 11 toggle và một slider `Tốc độ xoay` với min/max/default là 1/10/5.
+- `MenuFreeFireFeatureBridge` khôi phục cả `bypass_emulator_detect`; native state của bốn ABI chấp nhận ID này và chỉ ghi nó vào snapshot cấu hình.
 - Lời gọi bootstrap: tìm thấy trong bytecode launcher của APK cuối.
 - Manifest APK cuối xác nhận `android:stopWithTask="true"`.
 - Bytecode APK cuối xác nhận `onStartCommand` trả về `START_NOT_STICKY` (`2`).

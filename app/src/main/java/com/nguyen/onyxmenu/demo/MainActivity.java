@@ -23,6 +23,8 @@ import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.nguyen.onyxmenu.demo.nativebridge.NativeDemoRuntime;
+import com.nguyen.onyxmenu.demo.profile.DemoFeatureBridge;
 import com.nguyen.onyxmenu.overlay.MenuOverlayService;
 import com.nguyen.onyxmenu.ui.BrandMarkView;
 import com.nguyen.onyxmenu.ui.Design;
@@ -34,11 +36,14 @@ public final class MainActivity extends Activity {
     private static final int REQUEST_OVERLAY = 1001;
     private static final int REQUEST_NOTIFICATIONS = 1002;
     private TextView statusPill;
+    private TextView nativeSnapshotView;
+    private DemoFeatureBridge previewBridge;
     private boolean startAfterPermission;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        previewBridge = new DemoFeatureBridge(this);
         configureWindow();
         setContentView(createContent());
     }
@@ -47,6 +52,7 @@ public final class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         updateStatus();
+        refreshNativeSnapshot();
         if (startAfterPermission && canDrawOverlays()) {
             startAfterPermission = false;
             requestNotificationsAndStart();
@@ -193,6 +199,13 @@ public final class MainActivity extends Activity {
         previewParams.setMargins(0, Design.dp(this, 42), 0, 0);
         content.addView(createPreviewCard(), previewParams);
 
+        LinearLayout.LayoutParams nativeStateParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        nativeStateParams.setMargins(0, Design.dp(this, 12), 0, 0);
+        content.addView(createNativeStateCard(), nativeStateParams);
+
         TextView detailsLabel = Design.label(this, "Designed for portability");
         detailsLabel.setTextColor(Design.ACCENT_LIGHT);
         LinearLayout.LayoutParams detailsLabelParams = new LinearLayout.LayoutParams(
@@ -324,6 +337,10 @@ public final class MainActivity extends Activity {
         feature.addView(copy, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
         ModernToggle toggle = new ModernToggle(this);
         toggle.setChecked(true);
+        toggle.setOnCheckedChangeListener(checked -> {
+            previewBridge.onToggleChanged("preview_ambient", checked);
+            refreshNativeSnapshot();
+        });
         feature.addView(toggle, new LinearLayout.LayoutParams(Design.dp(this, 50), Design.dp(this, 28)));
         LinearLayout.LayoutParams featureParams = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -348,9 +365,13 @@ public final class MainActivity extends Activity {
         sliderCard.addView(sliderHeader);
         ModernSlider slider = new ModernSlider(this);
         slider.setValue(0.68f);
-        slider.setOnValueChangeListener((value, fromUser) -> sliderValue.setText(
-                getString(R.string.percentage_format, Math.round(value * 100))
-        ));
+        slider.setOnValueChangeListener((value, fromUser) -> {
+            sliderValue.setText(getString(R.string.percentage_format, Math.round(value * 100)));
+            if (fromUser) {
+                previewBridge.onValueChanged("preview_intensity", value);
+                refreshNativeSnapshot();
+            }
+        });
         sliderCard.addView(slider, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 Design.dp(this, 42)
@@ -363,6 +384,108 @@ public final class MainActivity extends Activity {
         shell.addView(sliderCard, sliderCardParams);
 
         return shell;
+    }
+
+    private View createNativeStateCard() {
+        LinearLayout card = Design.vertical(this);
+        card.setPadding(
+                Design.dp(this, 15),
+                Design.dp(this, 15),
+                Design.dp(this, 15),
+                Design.dp(this, 15)
+        );
+        card.setBackground(Design.outlined(this, 0xE6111622, 0xFF333C52, 20, 1));
+
+        LinearLayout titleRow = Design.horizontal(this);
+        titleRow.addView(Design.title(this, "JNI → C++ → NATIVE STATE", 13),
+                new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+        titleRow.addView(Design.pill(this, "PROCESS LOCAL", Design.CYAN, 0x1F2DE2E6));
+        card.addView(titleRow);
+
+        TextView explanation = Design.text(
+                this,
+                "The controls above call DemoFeatureBridge, cross JNI and update a mutex-protected C++ object.",
+                11,
+                Design.MUTED
+        );
+        explanation.setLineSpacing(Design.dp(this, 3), 1f);
+        LinearLayout.LayoutParams explanationParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        explanationParams.setMargins(0, Design.dp(this, 9), 0, 0);
+        card.addView(explanation, explanationParams);
+
+        nativeSnapshotView = Design.text(this, NativeDemoRuntime.snapshot(), 11, Design.ACCENT_LIGHT);
+        nativeSnapshotView.setTypeface(Typeface.MONOSPACE);
+        nativeSnapshotView.setTextIsSelectable(true);
+        nativeSnapshotView.setPadding(
+                Design.dp(this, 12),
+                Design.dp(this, 11),
+                Design.dp(this, 12),
+                Design.dp(this, 11)
+        );
+        nativeSnapshotView.setBackground(Design.outlined(
+                this,
+                0xFF090D16,
+                Design.DIVIDER,
+                12,
+                1
+        ));
+        LinearLayout.LayoutParams snapshotParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        snapshotParams.setMargins(0, Design.dp(this, 12), 0, 0);
+        card.addView(nativeSnapshotView, snapshotParams);
+
+        LinearLayout actions = Design.horizontal(this);
+        TextView refresh = actionButton("REFRESH SNAPSHOT", true);
+        refresh.setOnClickListener(view -> refreshNativeSnapshot());
+        actions.addView(refresh, new LinearLayout.LayoutParams(
+                0,
+                Design.dp(this, 42),
+                1f
+        ));
+
+        TextView clear = actionButton("CLEAR C++ STATE", true);
+        clear.setOnClickListener(view -> {
+            previewBridge.onAction("clear_demo_state");
+            refreshNativeSnapshot();
+        });
+        LinearLayout.LayoutParams clearParams = new LinearLayout.LayoutParams(
+                0,
+                Design.dp(this, 42),
+                1f
+        );
+        clearParams.setMargins(Design.dp(this, 8), 0, 0, 0);
+        actions.addView(clear, clearParams);
+        LinearLayout.LayoutParams actionParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        );
+        actionParams.setMargins(0, Design.dp(this, 10), 0, 0);
+        card.addView(actions, actionParams);
+
+        TextView offsetLab = actionButton("RUN SAFE C++ OFFSET LAB", false);
+        offsetLab.setOnClickListener(view -> {
+            String report = NativeDemoRuntime.runOwnedOffsetLab();
+            nativeSnapshotView.setText(report);
+            Toast.makeText(this, "C++ helper checks completed", Toast.LENGTH_SHORT).show();
+        });
+        LinearLayout.LayoutParams offsetLabParams = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                Design.dp(this, 44)
+        );
+        offsetLabParams.setMargins(0, Design.dp(this, 8), 0, 0);
+        card.addView(offsetLab, offsetLabParams);
+        return card;
+    }
+
+    private void refreshNativeSnapshot() {
+        if (nativeSnapshotView != null) {
+            nativeSnapshotView.setText(NativeDemoRuntime.snapshot());
+        }
     }
 
     private View featureCard(String index, String title, String description) {

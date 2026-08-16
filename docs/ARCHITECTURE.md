@@ -95,7 +95,10 @@ Payload độc lập gồm:
 
 - `OnyxBootstrap`: kiểm tra quyền và khởi động engine.
 - `OnyxPermissionActivity`: mở trang cấp quyền overlay rồi quay lại khởi động service.
-- `MenuFreeFireProvider`: profile `menufreefire` gồm ba nhóm, 10 toggle, một slider 1–10 và bridge no-op để kiểm tra UI.
+- `MenuFreeFireProvider`: profile `menufreefire` gồm bốn nhóm, 11 toggle và một slider 1–10; mục bypass chỉ lưu trạng thái cấu hình.
+- `MenuFreeFireFeatureBridge`: đồng bộ giá trị đã lưu và chuyển sự kiện control qua JNI.
+- `nativebridge/MenuFreeFireRuntime`: nạp `libonyx_menufreefire.so` và cung cấp Java API tối thiểu.
+- `src/main/cpp`: kiểm tra ID, chặn tốc độ xoay, lưu trạng thái có mutex và xuất snapshot JSON trong cùng tiến trình.
 - `StandaloneMenuProvider`: profile demo chỉ thao tác trạng thái UI.
 - `StandaloneFeatureBridge`: chỉ ghi sự kiện vào Logcat.
 

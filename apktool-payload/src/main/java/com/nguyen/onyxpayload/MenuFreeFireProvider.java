@@ -9,16 +9,14 @@ import com.nguyen.onyxmenu.model.MenuProfile;
 import com.nguyen.onyxmenu.model.MenuSection;
 import com.nguyen.onyxmenu.model.MenuTab;
 
-/**
- * UI-only profile used to preview toggle layout and preference persistence.
- */
+/** Profile menufreefire có bridge JNI tới trạng thái C++ trong cùng tiến trình. */
 public final class MenuFreeFireProvider implements MenuProvider {
     @Override
     public MenuProfile createProfile(Context context) {
         return MenuProfile.builder("menufreefire", "MENUFREEFIRE")
-                .subtitle("UI PREVIEW")
-                .version("v1.1.0")
-                .footer("CHỈ KIỂM TRA GIAO DIỆN")
+                .subtitle("ĐIỀU KHIỂN NATIVE")
+                .version("v1.2.0")
+                .footer("JNI · C++ · NỘI BỘ TIẾN TRÌNH")
                 .tab(MenuTab.builder("esp", "ESP")
                         .section(MenuSection.builder("Hiển thị")
                                 .meta("4 TÙY CHỌN")
@@ -52,14 +50,21 @@ public final class MenuFreeFireProvider implements MenuProvider {
                                 ))
                                 .build())
                         .build())
+                .tab(MenuTab.builder("bypass", "BYPASS")
+                        .section(MenuSection.builder("Tương thích")
+                                .meta("CHỈ LƯU TRẠNG THÁI")
+                                .control(toggle(
+                                        "bypass_emulator_detect",
+                                        "Bypass Emulator Detect"
+                                ))
+                                .build())
+                        .build())
                 .build();
     }
 
     @Override
     public FeatureBridge createBridge(Context context) {
-        return new FeatureBridge() {
-            // Intentionally empty: this profile only previews the UI.
-        };
+        return new MenuFreeFireFeatureBridge(context);
     }
 
     private static MenuControl toggle(String id, String title) {
