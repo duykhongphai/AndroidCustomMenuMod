@@ -16,7 +16,7 @@ Giao diện chạy hoàn toàn bằng Android Views và Canvas, không phụ thu
 - Nạp `MenuProvider` từ manifest và tự dùng profile dự phòng nếu cấu hình sai.
 - Có consumer rules cho R8 để giữ nguyên provider được gọi bằng reflection.
 - Có payload riêng, không phụ thuộc resource ID, dành cho kiểm thử bằng Apktool.
-- Hai nút `—` và `×` đều thu gọn menu về bubble; không dừng overlay service.
+- Header chỉ có nút `—` để thu gọn menu về bubble; không có nút `×`.
 
 ## Cấu trúc repository
 
@@ -135,7 +135,6 @@ Tích hợp AAR tại source luôn đáng tin cậy hơn Apktool vì Gradle tự
 ## Hành vi đóng và dừng menu
 
 - Nút `—`: thu gọn menu về bubble.
-- Nút `×`: cũng thu gọn menu về bubble.
 - Chạm bubble: mở lại menu.
 - Nút `STOP` trong app demo: dừng `MenuOverlayService` hoàn toàn.
 - Ứng dụng host cũng có thể gọi `stopService(new Intent(context, MenuOverlayService.class))`.

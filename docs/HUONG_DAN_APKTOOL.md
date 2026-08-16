@@ -330,7 +330,7 @@ Kiểm tra lời gọi trong launcher:
 5. Quay lại ứng dụng.
 6. Bubble Nebula xuất hiện.
 7. Chạm bubble để mở menu.
-8. Chạm `—` hoặc `×` để thu gọn về bubble.
+8. Chạm `—` để thu gọn về bubble; menu không có nút `×`.
 9. Vuốt ứng dụng khỏi Recent Apps để kiểm tra bubble và service cùng biến mất.
 
 Nếu thiết bị/OEM không quay lại activity đúng cách, đóng và mở lại ứng dụng sau khi đã cấp quyền.

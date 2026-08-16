@@ -127,17 +127,6 @@ public final class ModernMenuView extends LinearLayout {
             }
         });
         header.addView(minimize, minimizeParams);
-
-        TextView close = Design.iconButton(context, "×", "Collapse menu");
-        LayoutParams closeParams = new LayoutParams(Design.dp(context, 36), Design.dp(context, 36));
-        closeParams.setMargins(Design.dp(context, 6), 0, 0, 0);
-        close.setTextColor(Design.DANGER);
-        close.setOnClickListener(view -> {
-            if (collapseListener != null) {
-                collapseListener.run();
-            }
-        });
-        header.addView(close, closeParams);
         return header;
     }
 

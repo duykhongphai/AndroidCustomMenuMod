@@ -70,7 +70,7 @@ Do đó thêm hoặc xóa control chỉ thay đổi provider, không làm thay �
 - Trạng thái mở: control center responsive.
 - Trạng thái dừng: view được gỡ khỏi `WindowManager`.
 
-Cả nút `—` và `×` đều chuyển từ trạng thái mở sang bubble. Chúng không gọi `stopService`.
+Header chỉ giữ nút `—` để chuyển từ trạng thái mở sang bubble. UI engine không hiển thị nút `×` và nút thu gọn không gọi `stopService`.
 
 Service được khai báo `android:stopWithTask="true"` và trả về `START_NOT_STICKY`:
 

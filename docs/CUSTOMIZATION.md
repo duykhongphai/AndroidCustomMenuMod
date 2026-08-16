@@ -267,18 +267,18 @@ menu-core/src/main/java/com/nguyen/nebulamenu/ui/BrandMarkView.java
 
 Không cần thêm PNG hoặc resource vào APK host. Điều này giúp workflow Apktool ít bị xung đột resource ID.
 
-## Hành vi hai nút trên header
+## Hành vi nút trên header
 
 Hiện tại:
 
 - `—` gọi callback thu gọn.
-- `×` cũng gọi callback thu gọn.
+- Không hiển thị nút `×`.
 - Bubble vẫn tồn tại và có thể mở lại menu.
 - Vuốt ứng dụng khỏi Recent Apps sẽ dừng service vì `stopWithTask=true`.
 - Service không tự khởi động lại vì dùng `START_NOT_STICKY`.
 - Ứng dụng host vẫn có thể dừng ngay bằng `stopService`.
 
-Nếu muốn đổi icon nhưng giữ hành vi, sửa glyph trong `ModernMenuView.createHeader` và không thay callback.
+Nếu muốn đổi icon nhưng giữ hành vi, sửa glyph `—` trong `ModernMenuView.createHeader` và không thay callback.
 
 ## Lưu cấu hình
 
