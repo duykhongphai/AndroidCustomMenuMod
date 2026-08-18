@@ -6,13 +6,13 @@ Tài liệu này mô tả cách đổi nội dung, xử lý sự kiện và giao
 
 Khi chạy app demo:
 
-- Profile đang được chọn: `apktool-payload/src/main/java/com/nguyen/onyxpayload/MenuFreeFireProvider.java`
+- Profile đang được chọn: `freefire-payload/src/main/java/com/nguyen/onyxpayload/MenuFreeFireProvider.java`
 - Profile mẫu đầy đủ: `app/src/main/java/com/nguyen/onyxmenu/demo/profile/DemoMenuProvider.java`
 - Bridge mẫu: `app/src/main/java/com/nguyen/onyxmenu/demo/profile/DemoFeatureBridge.java`
 
 Khi build payload Apktool:
 
-- Profile UI-only đang được chọn: `apktool-payload/src/main/java/com/nguyen/onyxpayload/MenuFreeFireProvider.java`
+- Profile đang được chọn: `freefire-payload/src/main/java/com/nguyen/onyxpayload/MenuFreeFireProvider.java`
 - Profile/bridge demo tổng quát: `StandaloneMenuProvider.java` và `StandaloneFeatureBridge.java` trong cùng thư mục.
 
 Không nên thêm logic riêng vào `ModernMenuView` hoặc `MenuOverlayController`.

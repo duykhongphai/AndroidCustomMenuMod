@@ -27,7 +27,7 @@ SHA-256 APK gốc:
 
 ## Payload
 
-- Build từ `onyx-core` và `apktool-payload`.
+- Build từ `onyx-core` và `freefire-payload`.
 - Hai `classes.jar` được compile bằng D8 với `--min-api 21`.
 - DEX payload: 65.504 byte.
 - Số file smali: 55.
@@ -81,7 +81,7 @@ Kích thước: 267.326.889 byte.
 - Manifest APK cuối xác nhận `android:stopWithTask="true"`.
 - Bytecode APK cuối xác nhận `onStartCommand` trả về `START_NOT_STICKY` (`2`).
 - Bytecode header chỉ còn một nút có mô tả `Collapse menu` và không còn ký tự `×`.
-- Lint `app`, `onyx-core`, `apktool-payload`: 0 issue.
+- Lint `app`, `onyx-core`, `freefire-payload`: 0 issue.
 - Unit test: 3 test model và 1 test profile `menufreefire` đạt, 0 failure.
 - Kiểm thử trên thiết bị: chưa thực hiện vì không có thiết bị/emulator ADB kết nối.
 

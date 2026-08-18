@@ -16,5 +16,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "OnyxAndroidMenuEngine"
 include(":app")
-include(":apktool-payload")
+include(":freefire-payload")
+include(":native-demo-bridge")
 include(":onyx-core")

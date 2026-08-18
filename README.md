@@ -4,7 +4,7 @@ Onyx là UI engine menu nổi dành cho Android. Phần giao diện, vòng đờ
 
 Giao diện chạy hoàn toàn bằng Android Views và Canvas, không phụ thuộc Compose, Material Components, mạng, quảng cáo hoặc thư viện UI bên thứ ba.
 
-> Chỉ sử dụng dự án với ứng dụng bạn sở hữu hoặc được cho phép kiểm thử. Dự án không chứa hook, sửa bộ nhớ, bypass anti-cheat hoặc logic gian lận trong trò chơi.
+> Chỉ sử dụng dự án với ứng dụng bạn sở hữu hoặc được cho phép kiểm thử. Các native module trong repository chỉ quản lý state do app sở hữu và ghi sự kiện UI ra Logcat; không chứa hook, process-memory access hoặc bypass anti-cheat.
 
 ## Tính năng
 
@@ -33,10 +33,12 @@ AndroidCustomMenuMod/
 ├── app/                               # Ứng dụng preview
 │   └── src/main/java/com/nguyen/onyxmenu/demo/profile/
 │       ├── DemoMenuProvider.java      # Khai báo menu demo
-│       ├── DemoFeatureBridge.java     # Adapter UI → JNI
-│       └── nativebridge/              # Java API của C++ demo state
-│   └── src/main/cpp/                  # JNI + NativeState an toàn
-├── apktool-payload/                   # Payload độc lập, không dùng host R
+│       └── DemoFeatureBridge.java     # Adapter UI → JNI
+├── native-demo-bridge/                # JNI + C++ lab an toàn, dùng lại được
+│   └── src/main/
+│       ├── java/com/nguyen/onyxmenu/nativebridge/
+│       └── cpp/
+├── freefire-payload/                  # Application preview MenuFreeFire + JNI state
 │   └── src/main/
 │       ├── java/com/nguyen/onyxpayload/
 │       │   ├── OnyxBootstrap.java
@@ -59,10 +61,11 @@ AndroidCustomMenuMod/
 
 App preview chọn `DemoMenuProvider` và minh họa luồng Java → JNI → C++ bằng một native state cục bộ, không hook hoặc truy cập process khác.
 
-Payload Apktool chứa `MenuFreeFireProvider` với bốn nhóm `ESP`, `AIMBOT`, `XOAY`, `BYPASS`. `MenuFreeFireFeatureBridge` chuyển 11 công tắc và slider tốc độ qua JNI tới trạng thái C++ có mutex, kiểm tra ID, chặn giá trị 1–10 và snapshot JSON. Toggle `Bypass Emulator Detect` chỉ lưu trạng thái cấu hình, không triển khai bypass thật. Native runtime này chỉ quản lý cấu hình trong tiến trình đã chủ động đóng gói payload; nó không chứa hook, quét bộ nhớ hoặc logic tác động tiến trình khác.
+`freefire-payload` là application preview riêng cho `MenuFreeFireProvider`. Các control gọi JNI thật, cập nhật native state có mutex và ghi Logcat; module không đọc/ghi địa chỉ bộ nhớ hoặc quét dữ liệu của app khác.
 
 Đọc [demo JNI và native state](docs/JNI_NATIVE_DEMO.md) để xem luồng dữ liệu và giới hạn khi tái sử dụng cho nhiều app.
 Đọc [owned offset lab và bộ helper](docs/CPP_OFFSETS_OWNED_LAB.md) để xem `OwnedMemoryView`, cách `base + offset`, `if/for/while`, array, bit flags và function table hoạt động trên object C++ của chính app.
+Đọc [inject demo menu bằng Apktool](docs/INJECT_DEMO_MENU_APKTOOL.md) để kéo thả APK/folder vào script `.bat` trên ứng dụng bạn sở hữu hoặc được phép kiểm thử.
 
 ## Thêm một nút mới
 
@@ -125,7 +128,8 @@ File đầu ra:
 
 - APK demo: `app/build/outputs/apk/debug/app-debug.apk`
 - AAR engine: `onyx-core/build/outputs/aar/onyx-core-release.aar`
-- AAR payload: `apktool-payload/build/outputs/aar/apktool-payload-release.aar`
+- AAR JNI demo: `native-demo-bridge/build/outputs/aar/native-demo-bridge-release.aar`
+- APK MenuFreeFire preview: `freefire-payload/build/outputs/apk/debug/freefire-payload-debug.apk`
 
 Yêu cầu:
 
@@ -133,7 +137,7 @@ Yêu cầu:
 - Gradle 9.7.
 - JDK 17 trở lên.
 - Android SDK 37.
-- Android NDK 27.2.12479018 để build module `app` có JNI demo.
+- Android NDK 27.2.12479018 để build `native-demo-bridge` và các module native.
 - Engine hỗ trợ từ Android 5.0, API 21.
 - Luồng cấp quyền overlay hoạt động từ Android 6.0, API 23.
 

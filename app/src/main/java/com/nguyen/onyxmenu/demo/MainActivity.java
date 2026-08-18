@@ -23,7 +23,7 @@ import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.nguyen.onyxmenu.demo.nativebridge.NativeDemoRuntime;
+import com.nguyen.onyxmenu.nativebridge.NativeDemoRuntime;
 import com.nguyen.onyxmenu.demo.profile.DemoFeatureBridge;
 import com.nguyen.onyxmenu.overlay.MenuOverlayService;
 import com.nguyen.onyxmenu.ui.BrandMarkView;

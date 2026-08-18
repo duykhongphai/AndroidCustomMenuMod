@@ -17,7 +17,9 @@ Apktool không thể:
 - Tự merge dependency hoặc consumer ProGuard rules.
 - Giữ nguyên chữ ký APK sau khi rebuild.
 
-Vì vậy phải build `onyx-core` và `apktool-payload` trước, chuyển `classes.jar` thành DEX bằng D8 rồi chuyển DEX thành smali.
+Script injector build/chọn một donor APK đã chứa `onyx-core`, provider và native
+library, sau đó decode donor bằng Apktool để copy smali. Không cần tự tách
+`classes.jar` hoặc chạy D8 cho workflow kéo-thả.
 
 ## Hợp đồng bắt buộc của APK cuối
 

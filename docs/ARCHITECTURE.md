@@ -38,6 +38,27 @@ Module không tham chiếu tới app demo hoặc mã nguồn game. Notification 
 
 Engine không tham chiếu resource ID của host. Notification dùng icon framework Android và chuỗi nội bộ, vì vậy DEX của engine có thể dùng trong bài kiểm thử Apktool mà không phải sửa hằng số `R`.
 
+## Module `native-demo-bridge`
+
+Module này tách toàn bộ JNI/C++ lab khỏi ứng dụng preview:
+
+- `NativeDemoRuntime`: Java API nạp `libonyx_demo_native.so`.
+- `jni_bridge.cpp`: JNI contract giữa Java và C++.
+- `NativeState`: trạng thái cấu hình cục bộ trong process.
+- `OwnedMemoryView`: helper offset có bounds/alignment check cho object do app sở hữu.
+- `owned_offset_lab.cpp`: bài kiểm tra field, array, bit flags và function table.
+
+`app` phụ thuộc `native-demo-bridge`; `onyx-core` không phụ thuộc native code. Consumer ProGuard rules nằm trong chính AAR nên app host không cần giữ JNI class thủ công.
+
+```text
+app ───────────────► onyx-core
+ └────────────────► native-demo-bridge
+
+freefire-payload ─► onyx-core
+```
+
+Hai nhánh native không phụ thuộc lẫn nhau.
+
 ## Hợp đồng của ứng dụng host
 
 Ứng dụng cung cấp một class implement `MenuProvider`:
@@ -89,7 +110,7 @@ Provider được nạp bằng reflection. `onyx-core/consumer-rules.pro` giữ 
 
 Trong workflow Apktool thủ công, phải giữ nguyên tên class provider trong DEX/smali vì consumer rules không còn tham gia quá trình build host.
 
-## Module `apktool-payload`
+## Module `freefire-payload`
 
 Payload độc lập gồm:
 
@@ -102,4 +123,8 @@ Payload độc lập gồm:
 - `StandaloneMenuProvider`: profile demo chỉ thao tác trạng thái UI.
 - `StandaloneFeatureBridge`: chỉ ghi sự kiện vào Logcat.
 
-Payload không có resource riêng và không chứa logic game. Khi build cùng `onyx-core`, hai `classes.jar` có thể được D8 thành một DEX rồi chuyển sang smali.
+Payload là application preview không có resource Android riêng. APK debug chứa cả
+`onyx-core`, provider, bridge và `libonyx_menufreefire.so`, nên có thể dùng trực
+tiếp làm donor cho script Apktool.
+
+Module này đứng ngoài dependency graph của `app` và `native-demo-bridge`; đổi tên từ `apktool-payload` để thể hiện rõ đây là payload mục tiêu riêng, không phải thành phần bắt buộc của UI engine.

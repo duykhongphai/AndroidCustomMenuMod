@@ -1,5 +1,10 @@
 # Hướng dẫn nhúng menu bằng Apktool
 
+> Lưu ý: workflow AAR/D8 thủ công bên dưới được giữ để tham khảo lịch sử.
+> `freefire-payload` hiện là application và tạo donor APK trực tiếp. Với workflow
+> hiện tại, dùng [INJECT_DEMO_MENU_APKTOOL.md](INJECT_DEMO_MENU_APKTOOL.md), build
+> `:freefire-payload:assembleDebug` rồi kéo folder `freefire-payload` vào BAT.
+
 Tài liệu này dùng PowerShell và cấu trúc toolkit sau:
 
 ```text
@@ -44,14 +49,14 @@ Set-Location $repo
 $env:JAVA_HOME = "C:\duong-dan\toi\jdk-21"
 $env:Path = "$env:JAVA_HOME\bin;$env:Path"
 
-.\gradlew.bat :onyx-core:assembleRelease :apktool-payload:assembleRelease
+.\gradlew.bat :onyx-core:assembleRelease :freefire-payload:assembleRelease
 ```
 
 Kết quả:
 
 ```text
 onyx-core\build\outputs\aar\onyx-core-release.aar
-apktool-payload\build\outputs\aar\apktool-payload-release.aar
+freefire-payload\build\outputs\aar\freefire-payload-release.aar
 ```
 
 ## 3. Lấy `classes.jar` từ hai AAR
@@ -59,7 +64,7 @@ apktool-payload\build\outputs\aar\apktool-payload-release.aar
 ```powershell
 $sevenZip = "$toolkit\6 - Resources\7z.exe"
 $coreAar = "$repo\onyx-core\build\outputs\aar\onyx-core-release.aar"
-$payloadAar = "$repo\apktool-payload\build\outputs\aar\apktool-payload-release.aar"
+$payloadAar = "$repo\freefire-payload\build\outputs\aar\freefire-payload-release.aar"
 
 New-Item -ItemType Directory -Path "$payloadWork\core" -Force | Out-Null
 New-Item -ItemType Directory -Path "$payloadWork\payload" -Force | Out-Null
@@ -359,7 +364,7 @@ Nếu thiết bị/OEM không quay lại activity đúng cách, đóng và mở 
 Sửa:
 
 ```text
-apktool-payload/src/main/java/com/nguyen/onyxpayload/MenuFreeFireProvider.java
+freefire-payload/src/main/java/com/nguyen/onyxpayload/MenuFreeFireProvider.java
 ```
 
 Profile này dùng `MenuFreeFireFeatureBridge` để chuyển control qua JNI tới trạng thái cấu hình C++ trong cùng tiến trình. Khi đổi hoặc thêm ID control, phải cập nhật đồng thời `MenuFreeFireFeatureBridge.java` và `src/main/cpp/menufreefire_state.cpp`.

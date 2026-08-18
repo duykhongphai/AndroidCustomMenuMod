@@ -5,7 +5,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.nguyen.onyxmenu.bridge.FeatureBridge;
-import com.nguyen.onyxmenu.demo.nativebridge.NativeDemoRuntime;
+import com.nguyen.onyxmenu.nativebridge.NativeDemoRuntime;
 
 /** Routes menu events through JNI into the harmless process-local C++ demo state. */
 public final class DemoFeatureBridge implements FeatureBridge {

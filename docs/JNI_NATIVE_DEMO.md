@@ -28,14 +28,14 @@ qua JNI và hiển thị JSON trên màn hình app preview.
 
 Các file chính:
 
-- `app/src/main/java/com/nguyen/onyxmenu/demo/nativebridge/NativeDemoRuntime.java`:
+- `native-demo-bridge/src/main/java/com/nguyen/onyxmenu/nativebridge/NativeDemoRuntime.java`:
   Java API và khai báo native methods.
 - `app/src/main/java/com/nguyen/onyxmenu/demo/profile/DemoFeatureBridge.java`:
   adapter từ UI engine sang Java API của JNI.
-- `app/src/main/cpp/jni_bridge.cpp`: chuyển đổi kiểu dữ liệu JNI.
-- `app/src/main/cpp/native_state.h` và `native_state.cpp`: state C++ giả lập.
-- `app/src/main/cpp/owned_offset_lab.cpp`: field offset, vòng lặp và function table an toàn.
-- `app/src/main/cpp/Android.mk`: build shared library bằng Android NDK.
+- `native-demo-bridge/src/main/cpp/jni_bridge.cpp`: chuyển đổi kiểu dữ liệu JNI.
+- `native-demo-bridge/src/main/cpp/native_state.h` và `native_state.cpp`: state C++ giả lập.
+- `native-demo-bridge/src/main/cpp/owned_offset_lab.cpp`: field offset, vòng lặp và function table an toàn.
+- `native-demo-bridge/src/main/cpp/Android.mk`: build shared library bằng Android NDK.
 
 ## Chạy thử
 

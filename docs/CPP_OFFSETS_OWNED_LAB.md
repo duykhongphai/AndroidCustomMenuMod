@@ -6,10 +6,10 @@ hoặc truy cập ứng dụng khác.
 
 Code chạy được nằm tại:
 
-- `app/src/main/cpp/owned_offset_helpers.h`
-- `app/src/main/cpp/owned_offset_lab.cpp`
-- `app/src/main/cpp/owned_offset_lab.h`
-- JNI entry `nativeRunOwnedOffsetLab` trong `app/src/main/cpp/jni_bridge.cpp`
+- `native-demo-bridge/src/main/cpp/owned_offset_helpers.h`
+- `native-demo-bridge/src/main/cpp/owned_offset_lab.cpp`
+- `native-demo-bridge/src/main/cpp/owned_offset_lab.h`
+- JNI entry `nativeRunOwnedOffsetLab` trong `native-demo-bridge/src/main/cpp/jni_bridge.cpp`
 
 ## Bộ helper có sẵn
 
